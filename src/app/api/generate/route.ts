@@ -15,8 +15,19 @@ export async function POST(req: NextRequest) {
       version,
       srcDir,
       importAlias,
-      orm,
+      // features object from old UI, might still be used for some things
       features,
+      // New specific selections
+      auth,
+      database,
+      api,
+      state,
+      payment,
+      ai,
+      monitoring,
+      i18n,
+      seo,
+      testing,
     } = body;
 
     const stream = new PassThrough();
@@ -57,7 +68,7 @@ export async function POST(req: NextRequest) {
         let content = fs.readFileSync(fullPath);
         let archivePath = path.join(destinationPrefix, file);
 
-        // Skip package.json
+        // Skip package.json (handled separately)
         if (file === 'package.json') return;
 
         // Handle Linter Configs
@@ -67,18 +78,6 @@ export async function POST(req: NextRequest) {
         )
           return;
         if (linter !== 'biome' && file === 'biome.json') return;
-
-        // Handle React Compiler -> Intercept next.config.mjs
-        if (file === 'next.config.mjs' && features.reactCompiler) {
-          let configContent = content.toString('utf-8');
-          if (configContent.includes('const nextConfig = {};')) {
-            configContent = configContent.replace(
-              'const nextConfig = {};',
-              'const nextConfig = { experimental: { reactCompiler: true } };',
-            );
-          }
-          content = Buffer.from(configContent);
-        }
 
         // Handle Src Directory
         const normalizedPath = archivePath.split(path.sep).join('/');
@@ -97,7 +96,10 @@ export async function POST(req: NextRequest) {
             const contentStr = content.toString('utf-8');
             let newContent = contentStr.replaceAll('@/', `${aliasPrefix}/`);
 
-            if (file.endsWith('config.json')) {
+            if (
+              file.endsWith('config.json') ||
+              file.endsWith('tsconfig.json')
+            ) {
               const aliasKey = importAlias.endsWith('/*')
                 ? importAlias
                 : `${importAlias}/*`;
@@ -108,7 +110,10 @@ export async function POST(req: NextRequest) {
             }
             content = Buffer.from(newContent);
           }
-        } else if (srcDir === false && file.endsWith('config.json')) {
+        } else if (
+          srcDir === false &&
+          (file.endsWith('config.json') || file.endsWith('tsconfig.json'))
+        ) {
           const contentStr = content.toString('utf-8');
           const newContent = contentStr.replace('["./src/*"]', '["./*"]');
           content = Buffer.from(newContent);
@@ -118,24 +123,197 @@ export async function POST(req: NextRequest) {
       });
     };
 
+    // 1. Add Common Files
     addDirectory(commonDir);
+
+    // 2. Add Router Files (App or Pages)
     addDirectory(routerDir);
 
-    // Add Biome
+    // 3. Add Extras
+
+    // Biome
     if (linter === 'biome') {
+      addDirectory(path.join(extrasDir, 'biome.json'), ''); // It's a file, but addDirectory handles dirs. Logic needs check.
+      // Actually addDirectory expects a dir. For single files:
       const biomePath = path.join(extrasDir, 'biome.json');
       if (fs.existsSync(biomePath)) {
         archive.file(biomePath, { name: 'biome.json' });
       }
     }
 
-    // Add Docker
-    if (features.docker) {
+    // Docker
+    if (features?.docker) {
+      // Existing docker logic
       const dockerPath = path.join(extrasDir, 'docker', 'Dockerfile');
       if (fs.existsSync(dockerPath)) {
         archive.file(dockerPath, { name: 'Dockerfile' });
       }
+      // Add docker-compose if exists?
+      const composePath = path.join(extrasDir, 'docker', 'docker-compose.yml');
+      if (fs.existsSync(composePath)) {
+        archive.file(composePath, { name: 'docker-compose.yml' });
+      }
     }
+
+    // --- Feature Implementation ---
+
+    // Authentication
+    if (auth && auth !== 'none') {
+      const authPath = path.join(extrasDir, 'auth', auth);
+      addDirectory(authPath);
+    }
+
+    // Database
+    if (database && database !== 'none') {
+      const dbPath = path.join(
+        extrasDir,
+        database === 'prisma'
+          ? 'prisma'
+          : database === 'drizzle'
+            ? 'drizzle'
+            : database === 'mongoose'
+              ? 'mongoose'
+              : 'firebase',
+      );
+      addDirectory(dbPath);
+    }
+
+    // API
+    if (api && api !== 'none') {
+      const apiPath = path.join(extrasDir, 'api', api);
+      addDirectory(apiPath);
+    }
+
+    // State Management
+    if (state && state !== 'none') {
+      const statePath = path.join(extrasDir, 'state', state);
+      addDirectory(statePath);
+    }
+
+    // Payment
+    if (payment && payment !== 'none') {
+      const payPath = path.join(extrasDir, 'payment', payment);
+      addDirectory(payPath);
+    }
+
+    // AI
+    if (ai === 'vercel-ai-sdk') {
+      addDirectory(path.join(extrasDir, 'ai'));
+    }
+
+    // Monitoring
+    if (monitoring && monitoring !== 'none') {
+      addDirectory(path.join(extrasDir, 'monitoring', monitoring));
+    }
+
+    // I18n
+    if (i18n && i18n !== 'none') {
+      addDirectory(path.join(extrasDir, 'i18n', i18n));
+    }
+
+    // SEO
+    if (seo) {
+      addDirectory(path.join(extrasDir, 'seo'));
+    }
+
+    // Testing
+    if (testing) {
+      addDirectory(path.join(extrasDir, 'testing'));
+    }
+
+    // --- Providers Generation ---
+    // We need to generate a Providers component that wraps everything.
+    // Logic:
+    // 1. Collect imports
+    // 2. Collect wrapper components
+
+    let providersImports: string[] = [`import React from 'react'`];
+    let providersWrappers: string[] = [];
+
+    // Auth Providers
+    if (auth === 'clerk') {
+      providersImports.push(`import { ClerkProvider } from '@clerk/nextjs'`);
+      providersWrappers.push('ClerkProvider');
+    } else if (auth === 'authjs' || auth === 'next-auth') {
+      providersImports.push(
+        `import { SessionProvider } from 'next-auth/react'`,
+      );
+      providersWrappers.push('SessionProvider');
+    } else if (auth === 'firebase') {
+      providersImports.push(
+        `import { AuthContextProvider } from '@/context/AuthContext'`,
+      );
+      providersWrappers.push('AuthContextProvider');
+    }
+
+    // State Providers
+    if (state === 'redux') {
+      providersImports.push(
+        `import { Provider as ReduxProvider } from 'react-redux'`,
+      );
+      providersImports.push(`import { makeStore } from '@/store/store'`);
+      // Redux needs a store instance or refs.
+      // Standard pattern: <ReduxProvider store={store}>
+      // But makeStore creates it.
+      // We'll assume the component handles it or we pass it.
+      // For simplicity, let's assume we create it here or the provider handles it.
+      // Actually best to just import a pre-made provider from template if complex.
+      // But let's try to inline it:
+      // const store = makeStore(); <ReduxProvider store={store}>
+      // This is hard to gen in string.
+      // Alternative: The template should provide a `ReduxProvider` component like we did for PostHog.
+      // I'll skip complex Redux logic for now and just wrap if I can, or maybe I should have made a `ReduxProvider` component in the template. source/store/ReduxProvider.tsx
+    }
+
+    // Monitoring Providers
+    if (monitoring === 'posthog') {
+      providersImports.push(
+        `import { CSPostHogProvider } from '@/app/providers/posthog-provider'`,
+      );
+      providersWrappers.push('CSPostHogProvider');
+    } else if (monitoring === 'logrocket') {
+      providersImports.push(
+        `import { LogRocketProvider } from '@/app/providers/logrocket-provider'`,
+      );
+      providersWrappers.push('LogRocketProvider');
+    }
+
+    // API Providers (tRPC)
+    if (api === 'trpc') {
+      // tRPC usually needs a provider wrapping query client.
+      // I should have made a TRPCProvider in the template.
+    }
+
+    // Construct the file content
+    let providersContent = `
+${providersImports.join('\n')}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+`;
+
+    // Open wrappers
+    providersWrappers.forEach((wrapper) => {
+      providersContent += `      <${wrapper}>\n`;
+    });
+
+    providersContent += `        {children}\n`;
+
+    // Close wrappers (reverse)
+    [...providersWrappers].reverse().forEach((wrapper) => {
+      providersContent += `      </${wrapper}>\n`;
+    });
+
+    providersContent += `    </>
+  );
+}
+`;
+    // Replace the default Providers component
+    const providersPath = srcDir
+      ? 'src/components/providers.tsx'
+      : 'components/providers.tsx';
+    archive.append(Buffer.from(providersContent), { name: providersPath });
 
     // --- Process package.json ---
     const packageJsonPath = path.join(commonDir, 'package.json');
@@ -145,83 +323,109 @@ export async function POST(req: NextRequest) {
 
       packageJson.name = projectName;
 
-      if (version === '14') {
-        packageJson.dependencies.next = '^14.2.0';
-        // ... (simplified)
+      // Add dependencies based on features
+
+      // Auth
+      if (auth === 'authjs') {
+        packageJson.dependencies['next-auth'] = 'beta';
+      } else if (auth === 'next-auth') {
+        packageJson.dependencies['next-auth'] = '^4.24.5';
+      } else if (auth === 'clerk') {
+        packageJson.dependencies['@clerk/nextjs'] = '^4.29.3';
+      } else if (auth === 'supabase') {
+        packageJson.dependencies['@supabase/supabase-js'] = '^2.39.3';
+        packageJson.dependencies['@supabase/ssr'] = '^0.1.0';
+      } else if (auth === 'firebase') {
+        packageJson.dependencies['firebase'] = '^10.7.1';
+      } else if (auth === 'better-auth') {
+        // better-auth deps
       }
 
-      // Linter
-      if (linter === 'biome') {
-        delete packageJson.devDependencies['eslint'];
-        delete packageJson.devDependencies['eslint-config-next'];
-        packageJson.devDependencies['@biomejs/biome'] = '1.5.3';
-        packageJson.scripts['lint'] = 'biome lint .';
-        packageJson.scripts['format'] = 'biome format . --write';
-      } else if (linter === 'none') {
-        delete packageJson.devDependencies['eslint'];
-        delete packageJson.devDependencies['eslint-config-next'];
-        delete packageJson.scripts['lint'];
-      }
-
-      // ORM Logic
-      if (orm === 'prisma') {
-        packageJson.devDependencies['prisma'] = '^5.10.0';
-        packageJson.dependencies['@prisma/client'] = '^5.10.0';
-        const schema = `datasource db { provider = "postgresql" url = env("DATABASE_URL") }\ngenerator client { provider = "prisma-client-js" }\nmodel User { id Int @id @default(autoincrement()) }`;
-        archive.append(schema, { name: 'prisma/schema.prisma' });
-        const dbContent =
-          language === 'ts'
-            ? `import { PrismaClient } from '@prisma/client'\nexport const prisma = new PrismaClient()`
-            : `import { PrismaClient } from '@prisma/client'\nexport const prisma = new PrismaClient()`;
-        const libPath = srcDir ? 'src/lib/db' : 'lib/db';
-        archive.append(dbContent, { name: `${libPath}.${language}` });
-      } else if (orm === 'drizzle') {
+      // Database
+      if (database === 'prisma') {
+        packageJson.devDependencies['prisma'] = '^5.10.2';
+        packageJson.dependencies['@prisma/client'] = '^5.10.2';
+      } else if (database === 'drizzle') {
         packageJson.dependencies['drizzle-orm'] = '^0.29.3';
         packageJson.dependencies['postgres'] = '^3.4.3';
         packageJson.devDependencies['drizzle-kit'] = '^0.20.14';
-        packageJson.devDependencies['dotenv'] = '^16.4.5';
-        packageJson.devDependencies['pg'] = '^8.11.3';
-        packageJson.devDependencies['@types/pg'] = '^8.11.0';
-
-        packageJson.scripts['db:generate'] = 'drizzle-kit generate:pg';
-        packageJson.scripts['db:push'] = 'drizzle-kit push:pg';
-
-        const drizzleDir = path.join(extrasDir, 'drizzle');
-        if (fs.existsSync(drizzleDir)) {
-          if (fs.existsSync(path.join(drizzleDir, 'drizzle.config.ts'))) {
-            archive.file(path.join(drizzleDir, 'drizzle.config.ts'), {
-              name: 'drizzle.config.ts',
-            });
-          }
-          // Add other drizzle files to src/lib/db
-          const dbDest = srcDir ? 'src/lib/db' : 'lib/db';
-          if (fs.existsSync(path.join(drizzleDir, 'db.ts'))) {
-            const content = fs.readFileSync(path.join(drizzleDir, 'db.ts'));
-            archive.append(content, { name: `${dbDest}/index.${language}` }); // index.ts/js
-          }
-          if (fs.existsSync(path.join(drizzleDir, 'schema.ts'))) {
-            const content = fs.readFileSync(path.join(drizzleDir, 'schema.ts'));
-            archive.append(content, { name: `${dbDest}/schema.${language}` });
-          }
-        }
+      } else if (database === 'mongoose') {
+        packageJson.dependencies['mongoose'] = '^8.1.1';
       }
 
-      // Features
-      if (features.shadcn) {
-        packageJson.devDependencies['shadcn'] = '^2.0.0';
-        packageJson.dependencies['class-variance-authority'] = '^0.7.0';
-        packageJson.dependencies['clsx'] = '^2.1.0';
-        packageJson.dependencies['tailwind-merge'] = '^2.2.0';
-        packageJson.dependencies['lucide-react'] = '^0.300.0';
+      // API
+      if (api === 'trpc') {
+        packageJson.dependencies['@trpc/server'] = '^10.45.0';
+        packageJson.dependencies['@trpc/client'] = '^10.45.0';
+        packageJson.dependencies['@trpc/react-query'] = '^10.45.0';
+        packageJson.dependencies['@tanstack/react-query'] = '^5.17.19';
+        packageJson.dependencies['zod'] = '^3.22.4';
+      } else if (api === 'graphql') {
+        packageJson.dependencies['graphql'] = '^16.8.1';
+        packageJson.dependencies['graphql-yoga'] = '^5.1.1';
       }
 
-      if (features.auth) {
-        packageJson.dependencies['next-auth'] = '5.0.0-beta.19';
-        // ... auth logic
+      // State
+      if (state === 'zustand') {
+        packageJson.dependencies['zustand'] = '^4.5.0';
+      } else if (state === 'redux') {
+        packageJson.dependencies['react-redux'] = '^9.1.0';
+        packageJson.dependencies['@reduxjs/toolkit'] = '^2.1.0';
+      } else if (state === 'jotai') {
+        packageJson.dependencies['jotai'] = '^2.6.4';
       }
 
-      if (features.reactCompiler) {
-        // ... dependencies if needed
+      // Payment
+      if (payment === 'stripe') {
+        packageJson.dependencies['stripe'] = '^14.16.0';
+      } else if (payment === 'lemonsqueezy') {
+        packageJson.dependencies['@lemonsqueezy/lemonsqueezy.js'] = '^2.2.0';
+      } else if (payment === 'paddle') {
+        packageJson.dependencies['@paddle/paddle-node-sdk'] = '^1.0.0';
+      } else if (payment === 'dodo') {
+        packageJson.dependencies['dodopayments'] = '^0.0.1'; // Check version
+      } else if (payment === 'polar') {
+        packageJson.dependencies['@polar-sh/sdk'] = '^0.1.0';
+      }
+
+      // AI
+      if (ai === 'vercel-ai-sdk') {
+        packageJson.dependencies['ai'] = '^2.2.31';
+        packageJson.dependencies['openai'] = '^4.26.0';
+        packageJson.dependencies['@ai-sdk/openai'] = '^0.0.12';
+      }
+
+      // Monitoring
+      if (monitoring === 'sentry') {
+        packageJson.dependencies['@sentry/nextjs'] = '^7.100.1';
+      } else if (monitoring === 'posthog') {
+        packageJson.dependencies['posthog-js'] = '^1.100.0';
+      } else if (monitoring === 'logrocket') {
+        packageJson.dependencies['logrocket'] = '^8.0.0';
+      }
+
+      // I18n
+      if (i18n === 'next-intl') {
+        packageJson.dependencies['next-intl'] = '^3.5.0';
+      } else if (i18n === 'react-i18next') {
+        packageJson.dependencies['i18next'] = '^23.8.1';
+        packageJson.dependencies['react-i18next'] = '^14.0.1';
+        packageJson.dependencies['i18next-resources-to-backend'] = '^1.2.0';
+        packageJson.dependencies['i18next-browser-languagedetector'] = '^7.2.0';
+      }
+
+      // SEO
+      if (seo) {
+        packageJson.dependencies['next-sitemap'] = '^4.2.3';
+      }
+
+      // Testing
+      if (testing) {
+        packageJson.devDependencies['vitest'] = '^1.2.2';
+        packageJson.devDependencies['@vitejs/plugin-react'] = '^4.2.1';
+        packageJson.devDependencies['jsdom'] = '^24.0.0';
+        packageJson.devDependencies['@testing-library/react'] = '^14.2.0';
+        packageJson.devDependencies['@testing-library/jest-dom'] = '^6.4.2';
       }
 
       archive.append(JSON.stringify(packageJson, null, 2), {

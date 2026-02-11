@@ -50,14 +50,38 @@ const formSchema = z.object({
     .string()
     .min(1, 'Alias required')
     .regex(/^@\/.*$/, 'Must start with @/'),
-  orm: z.enum(['none', 'prisma', 'drizzle']),
   features: z.object({
     tailwind: z.boolean(),
     shadcn: z.boolean(),
-    auth: z.boolean(),
     reactCompiler: z.boolean(),
     docker: z.boolean(),
   }),
+  // New Features
+  auth: z.enum([
+    'none',
+    'authjs',
+    'next-auth',
+    'clerk',
+    'supabase',
+    'firebase',
+    'better-auth',
+  ]),
+  database: z.enum(['none', 'prisma', 'drizzle', 'mongoose', 'firebase']),
+  api: z.enum(['none', 'trpc', 'graphql']),
+  state: z.enum(['none', 'zustand', 'redux', 'jotai']),
+  payment: z.enum([
+    'none',
+    'stripe',
+    'lemonsqueezy',
+    'paddle',
+    'dodo',
+    'polar',
+  ]),
+  ai: z.enum(['none', 'vercel-ai-sdk']),
+  monitoring: z.enum(['none', 'sentry', 'posthog', 'logrocket']),
+  i18n: z.enum(['none', 'next-intl', 'react-i18next']),
+  seo: z.boolean(),
+  testing: z.boolean(),
 });
 
 export function GeneratorForm() {
@@ -73,14 +97,22 @@ export function GeneratorForm() {
       version: 'latest',
       srcDir: true,
       importAlias: '@/*',
-      orm: 'none',
       features: {
         tailwind: true,
         shadcn: false,
-        auth: false,
         reactCompiler: false,
         docker: false,
       },
+      auth: 'none',
+      database: 'none',
+      api: 'none',
+      state: 'none',
+      payment: 'none',
+      ai: 'none',
+      monitoring: 'none',
+      i18n: 'none',
+      seo: false,
+      testing: false,
     },
   });
 
@@ -115,16 +147,17 @@ export function GeneratorForm() {
   }
 
   return (
-    <Card className='w-full max-w-3xl mx-auto'>
+    <Card className='w-full max-w-4xl mx-auto'>
       <CardHeader>
-        <CardTitle>Configure Your Application</CardTitle>
+        <CardTitle>Configure Your Next.js Application</CardTitle>
         <CardDescription>
-          Select your preferences required for the project.
+          Select from a wide range of features to boost your development.
         </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+            {/* Core Settings */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <FormField
                 control={form.control}
@@ -160,13 +193,13 @@ export function GeneratorForm() {
                 control={form.control}
                 name='language'
                 render={({ field }) => (
-                  <FormItem className='space-y-3'>
+                  <FormItem className='border p-4 rounded-lg'>
                     <FormLabel>Language</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className='flex flex-col space-y-1'
+                        className='flex flex-col space-y-1 mt-2'
                       >
                         <FormItem className='flex items-center space-x-3 space-y-0'>
                           <FormControl>
@@ -190,18 +223,17 @@ export function GeneratorForm() {
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name='router'
                 render={({ field }) => (
-                  <FormItem className='space-y-3'>
+                  <FormItem className='border p-4 rounded-lg'>
                     <FormLabel>Router</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className='flex flex-col space-y-1'
+                        className='flex flex-col space-y-1 mt-2'
                       >
                         <FormItem className='flex items-center space-x-3 space-y-0'>
                           <FormControl>
@@ -227,26 +259,32 @@ export function GeneratorForm() {
               />
             </div>
 
+            {/* Feature Selections (Selects) */}
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              {/* Auth */}
               <FormField
                 control={form.control}
-                name='linter'
+                name='auth'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Linter</FormLabel>
+                    <FormLabel>Authentication</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder='Select a linter' />
+                          <SelectValue placeholder='Select Auth Provider' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='eslint'>ESLint (Default)</SelectItem>
-                        <SelectItem value='biome'>Biome</SelectItem>
                         <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='authjs'>Auth.js (v5)</SelectItem>
+                        <SelectItem value='next-auth'>NextAuth (v4)</SelectItem>
+                        <SelectItem value='clerk'>Clerk</SelectItem>
+                        <SelectItem value='supabase'>Supabase</SelectItem>
+                        <SelectItem value='firebase'>Firebase</SelectItem>
+                        <SelectItem value='better-auth'>Better Auth</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -254,24 +292,204 @@ export function GeneratorForm() {
                 )}
               />
 
+              {/* Database */}
               <FormField
                 control={form.control}
-                name='version'
+                name='database'
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Next.js Version</FormLabel>
+                    <FormLabel>Database</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder='Select a version' />
+                          <SelectValue placeholder='Select Database' />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value='latest'>Latest (15.x)</SelectItem>
-                        <SelectItem value='14'>v14.x</SelectItem>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='prisma'>Prisma (SQL)</SelectItem>
+                        <SelectItem value='drizzle'>Drizzle (SQL)</SelectItem>
+                        <SelectItem value='mongoose'>
+                          Mongoose (NoSQL)
+                        </SelectItem>
+                        <SelectItem value='firebase'>
+                          Firebase (NoSQL)
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* API */}
+              <FormField
+                control={form.control}
+                name='api'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>API Layer</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select API Layer' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None (REST)</SelectItem>
+                        <SelectItem value='trpc'>tRPC</SelectItem>
+                        <SelectItem value='graphql'>GraphQL</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* State */}
+              <FormField
+                control={form.control}
+                name='state'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State Management</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select State Manager' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='zustand'>Zustand</SelectItem>
+                        <SelectItem value='redux'>Redux Toolkit</SelectItem>
+                        <SelectItem value='jotai'>Jotai</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Payment */}
+              <FormField
+                control={form.control}
+                name='payment'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Payment Gateway</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select Payment Gateway' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='stripe'>Stripe</SelectItem>
+                        <SelectItem value='lemonsqueezy'>
+                          Lemon Squeezy
+                        </SelectItem>
+                        <SelectItem value='paddle'>Paddle</SelectItem>
+                        <SelectItem value='dodo'>Dodo Payments</SelectItem>
+                        <SelectItem value='polar'>Polar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* AI */}
+              <FormField
+                control={form.control}
+                name='ai'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>AI Integration</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select AI' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='vercel-ai-sdk'>
+                          Vercel AI SDK
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Monitoring */}
+              <FormField
+                control={form.control}
+                name='monitoring'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Monitoring</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select Monitoring' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='sentry'>Sentry</SelectItem>
+                        <SelectItem value='posthog'>PostHog</SelectItem>
+                        <SelectItem value='logrocket'>LogRocket</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* I18n */}
+              <FormField
+                control={form.control}
+                name='i18n'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Localization</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select Localization' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='none'>None</SelectItem>
+                        <SelectItem value='next-intl'>next-intl</SelectItem>
+                        <SelectItem value='react-i18next'>
+                          react-i18next
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -280,155 +498,100 @@ export function GeneratorForm() {
               />
             </div>
 
-            <div className='space-y-4'>
-              <h3 className='text-lg font-medium'>Configuration & Features</h3>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <FormField
-                  control={form.control}
-                  name='srcDir'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>
-                          Use `src/` directory
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='features.tailwind'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>
-                          Tailwind CSS
-                        </FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='features.shadcn'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>shadcn/ui</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='orm'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>ORM</FormLabel>
-                        <FormDescription>Select an ORM.</FormDescription>
-                      </div>
-                      <FormControl>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className='w-[180px]'>
-                              <SelectValue placeholder='Select ORM' />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value='none'>None</SelectItem>
-                            <SelectItem value='prisma'>Prisma</SelectItem>
-                            <SelectItem value='drizzle'>Drizzle</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name='features.auth'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>Auth.js</FormLabel>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='features.reactCompiler'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>
-                          React Compiler
-                        </FormLabel>
-                        <FormDescription>
-                          Experimental optimization.
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name='features.docker'
-                  render={({ field }) => (
-                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
-                      <div className='space-y-0.5'>
-                        <FormLabel className='text-base'>Docker</FormLabel>
-                        <FormDescription>Add Dockerfile.</FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </div>
+            {/* Toggles (Switches) */}
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4'>
+              <FormField
+                control={form.control}
+                name='seo'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>SEO Pack</FormLabel>
+                      <FormDescription>
+                        Includes next-sitemap, meta.
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='testing'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>
+                        Testing (Vitest)
+                      </FormLabel>
+                      <FormDescription>Setup unit testing.</FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='features.tailwind'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>Tailwind CSS</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='features.shadcn'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>shadcn/ui</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name='features.docker'
+                render={({ field }) => (
+                  <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                    <div className='space-y-0.5'>
+                      <FormLabel className='text-base'>Docker</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
 
             <Button type='submit' className='w-full' disabled={isGenerating}>
