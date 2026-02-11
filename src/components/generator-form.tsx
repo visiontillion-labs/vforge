@@ -80,6 +80,7 @@ const formSchema = z.object({
   ai: z.enum(['none', 'vercel-ai-sdk']),
   monitoring: z.enum(['none', 'sentry', 'posthog', 'logrocket']),
   i18n: z.enum(['none', 'next-intl', 'react-i18next']),
+  languages: z.string().optional(),
   seo: z.boolean(),
   testing: z.boolean(),
 });
@@ -111,6 +112,7 @@ export function GeneratorForm() {
       ai: 'none',
       monitoring: 'none',
       i18n: 'none',
+      languages: 'en',
       seo: false,
       testing: false,
     },
@@ -496,6 +498,25 @@ export function GeneratorForm() {
                   </FormItem>
                 )}
               />
+
+              {form.watch('i18n') !== 'none' && (
+                <FormField
+                  control={form.control}
+                  name='languages'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Languages (comma separated)</FormLabel>
+                      <FormControl>
+                        <Input placeholder='en, ar' {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Default: en. Add &lsquo;ar&rsquo; for RTL demo.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
 
             {/* Toggles (Switches) */}

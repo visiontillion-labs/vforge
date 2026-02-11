@@ -12,12 +12,14 @@ export async function POST(req: NextRequest) {
       router,
       language,
       linter,
-      version,
+      i18n,
+      languages, // comma separated string e.g. "en, ar"
+      seo,
+      testing,
+      // Re-adding variables used in loop
       srcDir,
       importAlias,
-      // features object from old UI, might still be used for some things
       features,
-      // New specific selections
       auth,
       database,
       api,
@@ -25,9 +27,6 @@ export async function POST(req: NextRequest) {
       payment,
       ai,
       monitoring,
-      i18n,
-      seo,
-      testing,
     } = body;
 
     const stream = new PassThrough();
@@ -39,6 +38,15 @@ export async function POST(req: NextRequest) {
     const commonDir = path.join(langDir, 'common');
     const routerDir = path.join(langDir, router === 'app' ? 'app' : 'pages');
     const extrasDir = path.join(templatesDir, 'extras');
+
+    // Parse languages
+    const supportedLocales = languages
+      ? languages
+          .split(',')
+          .map((l: string) => l.trim())
+          .filter(Boolean)
+      : ['en'];
+    if (supportedLocales.length === 0) supportedLocales.push('en');
 
     const addDirectory = (source: string, destinationPrefix: string = '') => {
       if (!fs.existsSync(source)) return;
@@ -78,6 +86,167 @@ export async function POST(req: NextRequest) {
         )
           return;
         if (linter !== 'biome' && file === 'biome.json') return;
+
+        // Handle Localization Restructuring for App Router (next-intl)
+        if (
+          router === 'app' &&
+          i18n === 'next-intl' &&
+          source === routerDir // Ensure we are processing the main app files
+        ) {
+          const normalizedFile = file.replace(/\\/g, '/');
+          // Move layout.tsx and page.tsx to [locale]
+          if (
+            normalizedFile === 'src/app/layout.tsx' ||
+            normalizedFile === 'src/app/page.tsx'
+          ) {
+            archivePath = archivePath.replace('src/app/', 'src/app/[locale]/');
+
+            // Modify layout.tsx for RTL & Locale
+            if (normalizedFile === 'src/app/layout.tsx') {
+              let layoutContent = content.toString('utf-8');
+
+              // Update globals.css import path
+              layoutContent = layoutContent.replace(
+                "import './globals.css';",
+                "import '../../globals.css';",
+              );
+
+              // Inject Params
+              layoutContent = layoutContent.replace(
+                'children,',
+                'children, params: { locale },',
+              );
+              // Update type definition (regex approach)
+              layoutContent = layoutContent.replace(
+                'Readonly<{',
+                'Readonly<{\n  params: { locale: string };',
+              );
+
+              // Inject HTML attributes
+              // Replace <html lang='en'> with dynamic one
+              layoutContent = layoutContent.replace(
+                /<html.*?>/,
+                `<html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>`,
+              );
+
+              // Add generateStaticParams for static export support (optional but good)
+              layoutContent += `
+export function generateStaticParams() {
+  return [${supportedLocales.map((l: string) => `'${l}'`).join(', ')}].map((locale: { locale: string }) => ({ locale }));
+}
+`;
+
+              content = Buffer.from(layoutContent);
+            }
+
+            // Modify page.tsx to show it works
+            if (normalizedFile === 'src/app/page.tsx') {
+              let pageContent = content.toString('utf-8');
+              // Add useTranslations import
+              pageContent =
+                `import { useTranslations } from 'next-intl';\n` + pageContent;
+              // Add hook usage inside component
+              pageContent = pageContent.replace(
+                'export default function Home() {',
+                `export default function Home() {\n  const t = useTranslations('Index');`,
+              );
+              // Replace some text
+              pageContent = pageContent.replace(
+                'Get started by editing',
+                `{t('title')} - (Current locale: {t('locale')}) <br/> Edit`,
+              );
+              content = Buffer.from(pageContent);
+            }
+          }
+        }
+
+        // Handle Localization for Pages Router
+        if (router === 'pages' && i18n !== 'none' && source === routerDir) {
+          const normalizedFile = file.replace(/\\/g, '/');
+
+          // Update _document.tsx for RTL
+          if (normalizedFile.endsWith('_document.tsx')) {
+            let docContent = content.toString('utf-8');
+            // Inject props to Document (Next.js Document doesn't get props easily in default export without getInitialProps)
+            // But we can use this.props.locale if we did getInitialProps.
+            // Easier: Use HEAD to set dir? No, html attribute needs it.
+            // Standard way:
+            /*
+                 class MyDocument extends Document {
+                    render() {
+                        const { locale } = this.props.__NEXT_DATA__;
+                        const dir = locale === 'ar' ? 'rtl' : 'ltr';
+                        return (
+                            <Html lang={locale} dir={dir}>
+                 */
+            if (!docContent.includes('class MyDocument')) {
+              // Convert functional to class or use props if functional (Document is special)
+              // Let's just do a simple replacement for now assuming standard functional component structure
+              docContent = docContent.replace(
+                /<Html.*?>/,
+                `<Html lang='en' dir='ltr'>`, // Temporary placeholder to ensure replacement works later or if valid
+              );
+              // We need to change the implementation to access locale.
+              // Replacing the whole file might be safer if we knew specific template content.
+              // Let's try to inject the logic into the functional component.
+              docContent = docContent.replace(
+                'export default function Document() {',
+                `import { DocumentProps } from 'next/document';
+                        export default function Document(props: DocumentProps) {
+                            const { locale } = props.__NEXT_DATA__;
+                            const dir = locale === 'ar' ? 'rtl' : 'ltr';`,
+              );
+              docContent = docContent.replace(
+                /<Html.*?>/,
+                `<Html lang={locale} dir={dir}>`,
+              );
+            }
+            content = Buffer.from(docContent);
+          }
+
+          // Update _app.tsx for next-intl provider
+          if (normalizedFile.endsWith('_app.tsx') && i18n === 'next-intl') {
+            let appContent = content.toString('utf-8');
+            appContent =
+              `import { NextIntlClientProvider } from 'next-intl';\n` +
+              appContent;
+            if (appContent.includes('<Component {...pageProps} />')) {
+              appContent = appContent.replace(
+                '<Component {...pageProps} />',
+                `<NextIntlClientProvider messages={pageProps.messages}>
+          <Component {...pageProps} />
+        </NextIntlClientProvider>`,
+              );
+            }
+            content = Buffer.from(appContent);
+          }
+
+          // Update index.tsx to load messages
+          if (normalizedFile.endsWith('index.tsx') && i18n === 'next-intl') {
+            let indexContent = content.toString('utf-8');
+            indexContent += `
+export async function getStaticProps(context) {
+  return {
+    props: {
+      messages: (await import(\`../../messages/\${context.locale}.json\`)).default
+    }
+  };
+}
+`;
+            // Add usage to component
+            indexContent =
+              `import { useTranslations } from 'next-intl';\n` + indexContent;
+            indexContent = indexContent.replace(
+              'export default function Home() {',
+              `export default function Home() {\n  const t = useTranslations('Index');`,
+            );
+            indexContent = indexContent.replace(
+              'Get started by editing',
+              `{t('title')} <br/> Edit`,
+            );
+            content = Buffer.from(indexContent);
+          }
+        }
 
         // Handle Src Directory
         const normalizedPath = archivePath.split(path.sep).join('/');
@@ -208,7 +377,59 @@ export async function POST(req: NextRequest) {
 
     // I18n
     if (i18n && i18n !== 'none') {
-      addDirectory(path.join(extrasDir, 'i18n', i18n));
+      // Logic for adding i18n extra files
+      // For next-intl, we need custom logic to inject locales
+      if (i18n === 'next-intl') {
+        const intlDir = path.join(extrasDir, 'i18n', 'next-intl');
+        // Manually handle i18n.ts to inject locales
+        const i18nTsPath = path.join(intlDir, 'src', 'i18n.ts');
+        if (fs.existsSync(i18nTsPath)) {
+          let i18nContent = fs.readFileSync(i18nTsPath, 'utf-8');
+          // Replace locales
+          i18nContent = i18nContent.replace(
+            /const locales = \[.*\];/,
+            `const locales = [${supportedLocales.map((l: string) => `'${l}'`).join(', ')}];`,
+          );
+          archive.append(Buffer.from(i18nContent), {
+            name: srcDir ? 'src/i18n.ts' : 'i18n.ts',
+          });
+        }
+
+        // Middleware (required for next-intl)
+        const middlewarePath = path.join(intlDir, 'middleware.ts');
+        if (fs.existsSync(middlewarePath)) {
+          const mContent = fs.readFileSync(middlewarePath, 'utf-8');
+          // Update locales in middleware if hardcoded (usually it imports from config, but lets check)
+          // If it imports from somewhere else, we good. Assuming standard template.
+          // Just add the file.
+          archive.append(Buffer.from(mContent), { name: 'middleware.ts' });
+        }
+
+        // Messages
+        const messagesDir = path.join(intlDir, 'src', 'messages');
+        if (fs.existsSync(messagesDir)) {
+          // Read en.json as base
+          const enPath = path.join(messagesDir, 'en.json');
+          if (fs.existsSync(enPath)) {
+            const enContent = JSON.parse(fs.readFileSync(enPath, 'utf-8'));
+
+            // Create message file for EACH supported locale
+            supportedLocales.forEach((locale: string) => {
+              const localeContent = { ...enContent };
+              localeContent.Index = { ...localeContent.Index, locale: locale }; // Inject locale name for demo
+              if (locale === 'ar') localeContent.Index.title = 'مرحبا بالعالم'; // Simple demo
+
+              archive.append(
+                Buffer.from(JSON.stringify(localeContent, null, 2)),
+                { name: `messages/${locale}.json` },
+              );
+            });
+          }
+        }
+      } else {
+        // Fallback for react-i18next or others
+        addDirectory(path.join(extrasDir, 'i18n', i18n));
+      }
     }
 
     // SEO
@@ -227,8 +448,8 @@ export async function POST(req: NextRequest) {
     // 1. Collect imports
     // 2. Collect wrapper components
 
-    let providersImports: string[] = [`import React from 'react'`];
-    let providersWrappers: string[] = [];
+    const providersImports: string[] = [`import React from 'react'`];
+    const providersWrappers: string[] = [];
 
     // Auth Providers
     if (auth === 'clerk') {
@@ -433,9 +654,34 @@ export function Providers({ children }: { children: React.ReactNode }) {
       });
     }
 
+    // Handle next.config for Pages Router i18n
+    if (router === 'pages' && i18n !== 'none') {
+      // We probably need to update next.config.ts/js
+      // Assuming boilerplate has next.config.ts
+      const configPath = path.join(commonDir, 'next.config.ts');
+      if (fs.existsSync(configPath)) {
+        let configContent = fs.readFileSync(configPath, 'utf-8');
+        // Inject i18n config
+        const i18nConfig = `
+  i18n: {
+    locales: [${supportedLocales.map((l: string) => `'${l}'`).join(', ')}],
+    defaultLocale: 'en',
+    localeDetection: false,
+  },`;
+        configContent = configContent.replace(
+          'const nextConfig: NextConfig = {',
+          `const nextConfig: NextConfig = {${i18nConfig}`,
+        );
+
+        // Note: boilerplate might be using .mjs for config in some templates, but assuming common has one.
+        // If checking fails, we might miss it.
+        archive.append(Buffer.from(configContent), { name: 'next.config.ts' });
+      }
+    }
+
     archive.finalize();
 
-    return new NextResponse(stream as any, {
+    return new NextResponse(stream as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/zip',
         'Content-Disposition': `attachment; filename="${projectName}.zip"`,
