@@ -36,10 +36,12 @@ import {
   ShoppingCart,
   Newspaper,
   RotateCcw,
+  AlertTriangle,
 } from 'lucide-react';
 import { useState } from 'react';
 import { ProjectPreview } from '@/components/project-preview';
 import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   projectName: z
@@ -63,6 +65,7 @@ const formSchema = z.object({
     shadcn: z.boolean(),
     reactCompiler: z.boolean(),
     docker: z.boolean(),
+    git: z.boolean(),
   }),
   // New Features
   auth: z.enum([
@@ -108,6 +111,7 @@ const defaultValues: FormValues = {
     shadcn: false,
     reactCompiler: false,
     docker: false,
+    git: true,
   },
   auth: 'none',
   database: 'none',
@@ -147,6 +151,7 @@ const presets: Preset[] = [
         shadcn: true,
         reactCompiler: false,
         docker: true,
+        git: true,
       },
       auth: 'authjs',
       database: 'prisma',
@@ -176,6 +181,7 @@ const presets: Preset[] = [
         shadcn: true,
         reactCompiler: false,
         docker: true,
+        git: true,
       },
       auth: 'clerk',
       database: 'drizzle',
@@ -206,6 +212,7 @@ const presets: Preset[] = [
         shadcn: true,
         reactCompiler: false,
         docker: false,
+        git: true,
       },
       auth: 'next-auth',
       database: 'prisma',
@@ -275,6 +282,52 @@ export function GeneratorForm() {
 
   const watchedValues = form.watch();
 
+  const getConflictWarnings = (values: FormValues) => {
+    const warnings: string[] = [];
+
+    // Firebase Auth + SQL
+    if (
+      values.auth === 'firebase' &&
+      (values.database === 'prisma' || values.database === 'drizzle')
+    ) {
+      warnings.push(
+        'Mixing Firebase Auth with SQL databases (Prisma/Drizzle) requires manual user syncing and is generally not recommended.',
+      );
+    }
+
+    // Firebase DB + Non-Firebase Auth
+    if (
+      values.database === 'firebase' &&
+      values.auth !== 'firebase' &&
+      values.auth !== 'none'
+    ) {
+      warnings.push(
+        'Firebase Database (Firestore) is tightly integrated with Firebase Auth. Using a different provider may be difficult.',
+      );
+    }
+
+    // Supabase Auth + NoSQL
+    if (
+      values.auth === 'supabase' &&
+      (values.database === 'firebase' || values.database === 'mongoose')
+    ) {
+      warnings.push(
+        'Supabase is built on PostgreSQL. Using Supabase Auth with NoSQL databases is unusual and loses many ecosystem benefits.',
+      );
+    }
+
+    // AI SDK + Pages Router
+    if (values.router === 'pages' && values.ai === 'vercel-ai-sdk') {
+      warnings.push(
+        'Vercel AI SDK streaming UI hooks are optimized for the App Router. Implementation in Pages Router is more complex.',
+      );
+    }
+
+    return warnings;
+  };
+
+  const warnings = getConflictWarnings(watchedValues);
+
   return (
     <div className='w-full grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start'>
       <Card>
@@ -333,34 +386,58 @@ export function GeneratorForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
               {/* Core Settings */}
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                <FormField
-                  control={form.control}
-                  name='projectName'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Project Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder='my-next-app' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
+                <div className='col-span-12 md:col-span-5'>
+                  <FormField
+                    control={form.control}
+                    name='projectName'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Project Name</FormLabel>
+                        <FormControl>
+                          <Input placeholder='my-next-app' {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name='importAlias'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Import Alias</FormLabel>
-                      <FormControl>
-                        <Input placeholder='@/*' {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className='col-span-12 md:col-span-4'>
+                  <FormField
+                    control={form.control}
+                    name='importAlias'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Import Alias</FormLabel>
+                        <FormControl>
+                          <Input placeholder='@/*' {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className='col-span-12 md:col-span-3'>
+                  <FormField
+                    control={form.control}
+                    name='srcDir'
+                    render={({ field }) => (
+                      <FormItem className='flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm h-[74px]'>
+                        <div className='space-y-0.5'>
+                          <FormLabel>Use /src</FormLabel>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
 
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
@@ -792,7 +869,42 @@ export function GeneratorForm() {
                     </FormItem>
                   )}
                 />
+
+                <FormField
+                  control={form.control}
+                  name='features.git'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                      <div className='space-y-0.5'>
+                        <FormLabel className='text-base'>Git Init</FormLabel>
+                        <FormDescription>Include .gitignore</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
+
+              {warnings.length > 0 && (
+                <div className='space-y-3'>
+                  {warnings.map((warning, idx) => (
+                    <Alert
+                      variant='destructive'
+                      key={idx}
+                      className='border-yellow-600/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400'
+                    >
+                      <AlertTriangle className='h-4 w-4' />
+                      <AlertTitle>Compatibility Warning</AlertTitle>
+                      <AlertDescription>{warning}</AlertDescription>
+                    </Alert>
+                  ))}
+                </div>
+              )}
 
               <Button type='submit' className='w-full' disabled={isGenerating}>
                 {isGenerating ? (

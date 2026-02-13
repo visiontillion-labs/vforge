@@ -79,6 +79,10 @@ export async function POST(req: NextRequest) {
         // Skip package.json (handled separately)
         if (file === 'package.json') return;
 
+        // Start Git check
+        if (file === '.gitignore' && !features?.git) return;
+        // End Git check
+
         // Handle Linter Configs
         if (
           linter !== 'eslint' &&
@@ -678,6 +682,156 @@ export function Providers({ children }: { children: React.ReactNode }) {
         archive.append(Buffer.from(configContent), { name: 'next.config.ts' });
       }
     }
+
+    // Generate .env.example
+    let envContent = '';
+
+    if (auth !== 'none') {
+      envContent += `# Authentication (${auth})\n`;
+      if (auth === 'authjs' || auth === 'next-auth') {
+        envContent += `AUTH_SECRET=your_secret_here\n`;
+        if (auth === 'authjs') envContent += `AUTH_URL=http://localhost:3000\n`;
+        else
+          envContent += `NEXTAUTH_URL=http://localhost:3000\nNEXTAUTH_SECRET=your_secret_here\n`;
+      } else if (auth === 'clerk') {
+        envContent += `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...\nCLERK_SECRET_KEY=sk_test_...\n`;
+      } else if (auth === 'supabase') {
+        envContent += `NEXT_PUBLIC_SUPABASE_URL=your_supabase_url\nNEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key\n`;
+      } else if (auth === 'firebase') {
+        envContent += `NEXT_PUBLIC_FIREBASE_API_KEY=...\nNEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...\nNEXT_PUBLIC_FIREBASE_PROJECT_ID=...\n`;
+      }
+      envContent += '\n';
+    }
+
+    if (database !== 'none') {
+      envContent += `# Database (${database})\n`;
+      if (database === 'prisma' || database === 'drizzle') {
+        envContent += `DATABASE_URL="postgresql://user:password@localhost:5432/mydb"\n`;
+      } else if (database === 'mongoose') {
+        envContent += `MONGODB_URI="mongodb://localhost:27017/mydb"\n`;
+      }
+      envContent += '\n';
+    }
+
+    if (payment !== 'none') {
+      envContent += `# Payment (${payment})\n`;
+      if (payment === 'stripe') {
+        envContent += `STRIPE_SECRET_KEY=sk_test_...\nNEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...\nSTRIPE_WEBHOOK_SECRET=whsec_...\n`;
+      } else if (payment === 'lemonsqueezy') {
+        envContent += `LEMONSQUEEZY_API_KEY=...\nLEMONSQUEEZY_STORE_ID=...\nLEMONSQUEEZY_WEBHOOK_SECRET=...\n`;
+      }
+      envContent += '\n';
+    }
+
+    if (ai === 'vercel-ai-sdk') {
+      envContent += `# AI\nOPENAI_API_KEY=sk-...\n\n`;
+    }
+
+    if (monitoring !== 'none') {
+      envContent += `# Monitoring (${monitoring})\n`;
+      if (monitoring === 'sentry') {
+        envContent += `SENTRY_DSN=...\n`;
+      } else if (monitoring === 'posthog') {
+        envContent += `NEXT_PUBLIC_POSTHOG_KEY=...\nNEXT_PUBLIC_POSTHOG_HOST=...\n`;
+      }
+      envContent += '\n';
+    }
+
+    if (envContent.trim() !== '') {
+      archive.append(Buffer.from(envContent), { name: '.env.example' });
+    }
+
+    // Generate README.md
+    let readmeContent = `# ${projectName}
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [\`create-next-app\`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+\`\`\`bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+\`\`\`
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Features
+
+This project comes pre-configured with the following features:
+
+- **Framework**: Next.js ${router === 'app' ? '(App Router)' : '(Pages Router)'}
+- **Language**: ${language === 'ts' ? 'TypeScript' : 'JavaScript'}
+- **Styling**: ${features?.tailwind ? 'Tailwind CSS' : 'CSS Modules'} ${features?.shadcn ? '+ shadcn/ui' : ''}
+`;
+
+    if (auth !== 'none') readmeContent += `- **Authentication**: ${auth}\n`;
+    if (database !== 'none') readmeContent += `- **Database**: ${database}\n`;
+    if (api !== 'none') readmeContent += `- **API**: ${api}\n`;
+    if (state !== 'none') readmeContent += `- **State Management**: ${state}\n`;
+    if (payment !== 'none') readmeContent += `- **Payments**: ${payment}\n`;
+    if (ai !== 'none') readmeContent += `- **AI**: ${ai}\n`;
+    if (monitoring !== 'none')
+      readmeContent += `- **Monitoring**: ${monitoring}\n`;
+    if (i18n !== 'none')
+      readmeContent += `- **Internationalization**: ${i18n}\n`;
+    if (seo) readmeContent += `- **SEO**: next-sitemap configured\n`;
+    if (testing)
+      readmeContent += `- **Testing**: Vitest + React Testing Library\n`;
+    if (features?.docker)
+      readmeContent += `- **Docker**: Dockerfile & docker-compose.yml included\n`;
+
+    readmeContent += `
+## Project Structure
+
+\`\`\`
+${projectName}/
+├── public/          # Static assets
+├── src/
+│   ├── app/         # App Router pages and layouts
+│   ├── components/  # Reusable components
+│   ├── lib/         # Utility functions
+\`\`\`
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`;
+
+    if (database === 'prisma') {
+      readmeContent += `
+## Prisma Setup
+
+1. Update your \`.env\` file with your database connection string.
+2. Run migrations:
+   \`\`\`bash
+   npx prisma migrate dev
+   \`\`\`
+`;
+    }
+
+    if (database === 'drizzle') {
+      readmeContent += `
+## Drizzle Setup
+
+1. Update your \`.env\` file with your database credentials.
+2. Push schema changes:
+   \`\`\`bash
+   npm run db:push
+   \`\`\`
+`;
+    }
+
+    archive.append(Buffer.from(readmeContent), { name: 'README.md' });
 
     archive.finalize();
 

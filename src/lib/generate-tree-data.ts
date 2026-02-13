@@ -17,6 +17,7 @@ interface FormValues {
     shadcn: boolean;
     reactCompiler: boolean;
     docker: boolean;
+    git: boolean;
   };
   auth: string;
   database: string;
@@ -102,7 +103,9 @@ export function buildTreeData(values: FormValues): TreeData {
   addPath(tree, values.language === 'ts' ? 'tsconfig.json' : 'jsconfig.json');
   addPath(tree, 'next.config.mjs');
   addPath(tree, 'README.md');
-  addPath(tree, '.gitignore');
+  if (values.features.git) {
+    addPath(tree, '.gitignore');
+  }
 
   // Linter config
   if (values.linter === 'eslint') {
