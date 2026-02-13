@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       payment,
       ai,
       monitoring,
+      i18nRouting,
     } = body;
 
     const stream = new PassThrough();
@@ -256,6 +257,27 @@ export async function getStaticProps(context) {
               `{t('title')} <br/> Edit`,
             );
             content = Buffer.from(indexContent);
+          }
+        }
+
+        // Parse middleware.ts for i18n routing
+        if (
+          (file === 'middleware.ts' || file === 'src/middleware.ts') &&
+          i18n === 'next-intl'
+        ) {
+          if (i18nRouting === 'no-prefix') {
+            let mwContent = content.toString('utf-8');
+            // Inject localePrefix: 'never'
+            mwContent = mwContent.replace(
+              "defaultLocale: 'en',",
+              "defaultLocale: 'en',\n  localePrefix: 'never',",
+            );
+            // Update matcher to catch all (excluding next internals)
+            mwContent = mwContent.replace(
+              /matcher: \[.*\]/s,
+              `matcher: ['/((?!api|_next|.*\\\\..*).*)']`,
+            );
+            content = Buffer.from(mwContent);
           }
         }
 

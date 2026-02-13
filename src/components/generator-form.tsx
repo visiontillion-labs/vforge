@@ -92,6 +92,7 @@ const formSchema = z.object({
   ai: z.enum(['none', 'vercel-ai-sdk']),
   monitoring: z.enum(['none', 'sentry', 'posthog', 'logrocket']),
   i18n: z.enum(['none', 'next-intl', 'react-i18next']),
+  i18nRouting: z.enum(['prefix', 'no-prefix']).optional(),
   languages: z.string().optional(),
   seo: z.boolean(),
   testing: z.boolean(),
@@ -123,6 +124,7 @@ const defaultValues: FormValues = {
   ai: 'none',
   monitoring: 'none',
   i18n: 'none',
+  i18nRouting: 'prefix',
   languages: 'en',
   seo: false,
   testing: false,
@@ -164,6 +166,7 @@ const presets: Preset[] = [
       ai: 'none',
       monitoring: 'sentry',
       i18n: 'none',
+      i18nRouting: 'prefix',
       seo: true,
       testing: true,
     },
@@ -195,6 +198,7 @@ const presets: Preset[] = [
       ai: 'none',
       monitoring: 'posthog',
       i18n: 'next-intl',
+      i18nRouting: 'prefix',
       languages: 'en, ar',
       seo: true,
       testing: true,
@@ -227,6 +231,7 @@ const presets: Preset[] = [
       ai: 'vercel-ai-sdk',
       monitoring: 'none',
       i18n: 'next-intl',
+      i18nRouting: 'prefix',
       languages: 'en',
       seo: true,
       testing: false,
@@ -735,14 +740,14 @@ export function GeneratorForm() {
                   name='i18n'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Localization</FormLabel>
+                      <FormLabel>Internationalization</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder='Select Localization' />
+                            <SelectValue placeholder='Select i18n Strategy' />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -757,6 +762,37 @@ export function GeneratorForm() {
                     </FormItem>
                   )}
                 />
+
+                {watchedValues.i18n !== 'none' && (
+                  <FormField
+                    control={form.control}
+                    name='i18nRouting'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Routing Strategy</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value || 'prefix'}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select Routing' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value='prefix'>
+                              Prefix (/en/about)
+                            </SelectItem>
+                            <SelectItem value='no-prefix'>
+                              No Prefix / Domain (/about)
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 {form.watch('i18n') !== 'none' && (
                   <FormField
