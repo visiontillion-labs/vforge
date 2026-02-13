@@ -872,13 +872,160 @@ export function Providers({ children }: { children: React.ReactNode }) {
     }
 
     // Generate README.md
+    // ── Helper maps for human-readable names ────────────────────────
+    const authNames: Record<string, string> = {
+      authjs: 'Auth.js (v5)',
+      'next-auth': 'NextAuth.js (v4)',
+      clerk: 'Clerk',
+      supabase: 'Supabase Auth',
+      firebase: 'Firebase Auth',
+      'better-auth': 'Better Auth',
+    };
+    const dbNames: Record<string, string> = {
+      prisma: 'Prisma',
+      drizzle: 'Drizzle ORM',
+      mongoose: 'Mongoose',
+      firebase: 'Firebase (Firestore)',
+    };
+    const apiNames: Record<string, string> = {
+      trpc: 'tRPC',
+      graphql: 'GraphQL (graphql-yoga)',
+    };
+    const stateNames: Record<string, string> = {
+      zustand: 'Zustand',
+      redux: 'Redux Toolkit',
+      jotai: 'Jotai',
+    };
+    const paymentNames: Record<string, string> = {
+      stripe: 'Stripe',
+      lemonsqueezy: 'Lemon Squeezy',
+      paddle: 'Paddle',
+      dodo: 'Dodo Payments',
+      polar: 'Polar',
+    };
+    const monitoringNames: Record<string, string> = {
+      sentry: 'Sentry',
+      posthog: 'PostHog',
+      logrocket: 'LogRocket',
+      'google-analytics': 'Google Analytics',
+      'vercel-analytics': 'Vercel Analytics',
+    };
+    const i18nNames: Record<string, string> = {
+      'next-intl': 'next-intl',
+      'react-i18next': 'react-i18next',
+    };
+    const linterNames: Record<string, string> = {
+      eslint: 'ESLint',
+      biome: 'Biome',
+    };
+
     let readmeContent = `# ${projectName}
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [\`create-next-app\`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [Orium Boilerplate](https://github.com/mustaquenadim/oriums-boilerplate).
 
+## Tech Stack
+
+| Category | Choice |
+| --- | --- |
+| Framework | Next.js ${router === 'app' ? '(App Router)' : '(Pages Router)'} |
+| Language | ${language === 'ts' ? 'TypeScript' : 'JavaScript'} |
+| Styling | ${features?.tailwind ? 'Tailwind CSS' : 'CSS Modules'}${features?.shadcn ? ' + shadcn/ui' : ''} |
+| Linter | ${linterNames[linter] || 'None'} |
+`;
+    if (auth !== 'none')
+      readmeContent += `| Authentication | ${authNames[auth] || auth} |\n`;
+    if (database !== 'none')
+      readmeContent += `| Database | ${dbNames[database] || database} |\n`;
+    if (api !== 'none')
+      readmeContent += `| API Layer | ${apiNames[api] || api} |\n`;
+    if (state !== 'none')
+      readmeContent += `| State Management | ${stateNames[state] || state} |\n`;
+    if (payment !== 'none')
+      readmeContent += `| Payments | ${paymentNames[payment] || payment} |\n`;
+    if (ai !== 'none') readmeContent += `| AI | Vercel AI SDK |\n`;
+    if (monitoring !== 'none')
+      readmeContent += `| Analytics & Monitoring | ${monitoringNames[monitoring] || monitoring} |\n`;
+    if (i18n !== 'none')
+      readmeContent += `| Internationalization | ${i18nNames[i18n] || i18n} |\n`;
+    if (seo) readmeContent += `| SEO | next-sitemap |\n`;
+    if (testing)
+      readmeContent += `| Testing | Vitest + React Testing Library |\n`;
+    if (features?.docker) readmeContent += `| Containerisation | Docker |\n`;
+    if (features?.storybook) readmeContent += `| Component Dev | Storybook |\n`;
+
+    // ── Prerequisites ───────────────────────────────────────────────
+    readmeContent += `
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) 18.17 or later
+- npm / yarn / pnpm / bun
+`;
+    if (features?.docker)
+      readmeContent += `- [Docker](https://www.docker.com/) (for containerised deployment)\n`;
+    if (database === 'prisma' || database === 'drizzle')
+      readmeContent += `- A PostgreSQL database (local or cloud)\n`;
+    if (database === 'mongoose')
+      readmeContent += `- A MongoDB instance (local or [MongoDB Atlas](https://www.mongodb.com/atlas))\n`;
+
+    // ── Getting Started ─────────────────────────────────────────────
+    readmeContent += `
 ## Getting Started
 
-First, run the development server:
+### 1. Install dependencies
+
+\`\`\`bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+\`\`\`
+
+### 2. Set up environment variables
+
+Copy the example env file and fill in the values:
+
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+> See the **Integration Setup** sections below for details on each variable.
+`;
+
+    // ── Database-specific first-time setup ───────────────────────────
+    if (database === 'prisma') {
+      readmeContent += `
+### 3. Initialise the database (Prisma)
+
+\`\`\`bash
+# Generate the Prisma client
+npx prisma generate
+
+# Create and apply the initial migration
+npx prisma migrate dev --name init
+\`\`\`
+
+`;
+    } else if (database === 'drizzle') {
+      readmeContent += `
+### 3. Initialise the database (Drizzle)
+
+\`\`\`bash
+# Push the schema to your database
+npm run db:push
+\`\`\`
+
+`;
+    } else if (database === 'mongoose') {
+      readmeContent += `
+### 3. Start MongoDB
+
+Ensure your MongoDB instance is running and the \`MONGODB_URI\` in \`.env.local\` points to it.
+
+`;
+    }
+
+    readmeContent += `### ${database !== 'none' ? '4' : '3'}. Run the development server
 
 \`\`\`bash
 npm run dev
@@ -891,75 +1038,621 @@ bun dev
 \`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-## Features
-
-This project comes pre-configured with the following features:
-
-- **Framework**: Next.js ${router === 'app' ? '(App Router)' : '(Pages Router)'}
-- **Language**: ${language === 'ts' ? 'TypeScript' : 'JavaScript'}
-- **Styling**: ${features?.tailwind ? 'Tailwind CSS' : 'CSS Modules'} ${features?.shadcn ? '+ shadcn/ui' : ''}
 `;
 
-    if (auth !== 'none') readmeContent += `- **Authentication**: ${auth}\n`;
-    if (database !== 'none') readmeContent += `- **Database**: ${database}\n`;
-    if (api !== 'none') readmeContent += `- **API**: ${api}\n`;
-    if (state !== 'none') readmeContent += `- **State Management**: ${state}\n`;
-    if (payment !== 'none') readmeContent += `- **Payments**: ${payment}\n`;
-    if (ai !== 'none') readmeContent += `- **AI**: ${ai}\n`;
-    if (monitoring !== 'none')
-      readmeContent += `- **Monitoring**: ${monitoring}\n`;
-    if (i18n !== 'none')
-      readmeContent += `- **Internationalization**: ${i18n}\n`;
-    if (seo) readmeContent += `- **SEO**: next-sitemap configured\n`;
-    if (testing)
-      readmeContent += `- **Testing**: Vitest + React Testing Library\n`;
+    // ── Project Structure ───────────────────────────────────────────
+    const structureLines: string[] = [
+      `${projectName}/`,
+      `├── public/                  # Static assets`,
+    ];
+    if (srcDir) {
+      structureLines.push(`├── src/`);
+      structureLines.push(
+        `│   ├── ${router === 'app' ? 'app/' : 'pages/'}${' '.repeat(Math.max(0, 18 - (router === 'app' ? 4 : 6)))}# ${router === 'app' ? 'App Router pages & layouts' : 'Pages Router views'}`,
+      );
+      structureLines.push(
+        `│   ├── components/          # Reusable UI components`,
+      );
+      structureLines.push(
+        `│   ├── lib/                 # Utility functions & shared logic`,
+      );
+      if (auth !== 'none')
+        structureLines.push(
+          `│   ├── ${auth === 'firebase' ? 'context/' : 'auth/'}               # Authentication helpers`,
+        );
+      if (database === 'prisma')
+        structureLines.push(
+          `│   ├── prisma/              # Prisma schema & migrations`,
+        );
+      if (database === 'drizzle')
+        structureLines.push(
+          `│   ├── db/                  # Drizzle schema & config`,
+        );
+      if (state !== 'none')
+        structureLines.push(
+          `│   ├── store/               # ${stateNames[state] || state} store`,
+        );
+      if (api === 'trpc')
+        structureLines.push(
+          `│   ├── server/              # tRPC router & procedures`,
+        );
+      if (i18n !== 'none')
+        structureLines.push(
+          `│   ├── messages/            # Translation JSON files`,
+        );
+    } else {
+      structureLines.push(
+        `├── ${router === 'app' ? 'app/' : 'pages/'}                    # ${router === 'app' ? 'App Router pages & layouts' : 'Pages Router views'}`,
+      );
+      structureLines.push(
+        `├── components/              # Reusable UI components`,
+      );
+      structureLines.push(
+        `├── lib/                     # Utility functions & shared logic`,
+      );
+    }
     if (features?.docker)
-      readmeContent += `- **Docker**: Dockerfile & docker-compose.yml included\n`;
+      structureLines.push(
+        `├── Dockerfile               # Production Docker image`,
+      );
+    if (features?.docker)
+      structureLines.push(
+        `├── docker-compose.yml       # Docker Compose config`,
+      );
+    if (features?.storybook)
+      structureLines.push(
+        `├── .storybook/              # Storybook configuration`,
+      );
+    structureLines.push(
+      `├── .env.example             # Required env variables`,
+    );
+    structureLines.push(`└── package.json`);
 
     readmeContent += `
 ## Project Structure
 
 \`\`\`
-${projectName}/
-├── public/          # Static assets
-├── src/
-│   ├── app/         # App Router pages and layouts
-│   ├── components/  # Reusable components
-│   ├── lib/         # Utility functions
+${structureLines.join('\n')}
 \`\`\`
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 `;
 
+    // ═════════════════════════════════════════════════════════════════
+    //  Integration Setup Sections
+    // ═════════════════════════════════════════════════════════════════
+
+    // ── Auth ─────────────────────────────────────────────────────────
+    if (auth === 'authjs') {
+      readmeContent += `
+## 🔐 Authentication — Auth.js (v5)
+
+1. Generate a secret:
+   \`\`\`bash
+   npx auth secret
+   \`\`\`
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   AUTH_SECRET=<generated_secret>
+   AUTH_URL=http://localhost:3000
+   \`\`\`
+3. Configure your OAuth providers in \`auth.ts\` (Google, GitHub, etc.).
+
+📖 [Auth.js Documentation](https://authjs.dev/)
+`;
+    } else if (auth === 'next-auth') {
+      readmeContent += `
+## 🔐 Authentication — NextAuth.js (v4)
+
+1. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=<random_string>
+   \`\`\`
+   Generate a secret with: \`openssl rand -base64 32\`
+2. Configure your providers in \`[...nextauth].ts\`.
+
+📖 [NextAuth.js Documentation](https://next-auth.js.org/)
+`;
+    } else if (auth === 'clerk') {
+      readmeContent += `
+## 🔐 Authentication — Clerk
+
+1. Create a Clerk application at [clerk.com](https://clerk.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+   CLERK_SECRET_KEY=sk_test_...
+   \`\`\`
+3. The \`<ClerkProvider>\` is already wired up in the providers component.
+
+📖 [Clerk Next.js Quickstart](https://clerk.com/docs/quickstarts/nextjs)
+`;
+    } else if (auth === 'supabase') {
+      readmeContent += `
+## 🔐 Authentication — Supabase
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon_key>
+   \`\`\`
+3. The Supabase client is initialised in \`lib/supabase.ts\`.
+
+📖 [Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs)
+`;
+    } else if (auth === 'firebase') {
+      readmeContent += `
+## 🔐 Authentication — Firebase
+
+1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com).
+2. Enable Authentication and your preferred sign-in methods.
+3. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXT_PUBLIC_FIREBASE_API_KEY=...
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=...
+   \`\`\`
+4. The \`AuthContextProvider\` is already wired up in the providers component.
+
+📖 [Firebase Auth Docs](https://firebase.google.com/docs/auth)
+`;
+    } else if (auth === 'better-auth') {
+      readmeContent += `
+## 🔐 Authentication — Better Auth
+
+1. Follow the Better Auth setup guide for your preferred strategy.
+2. Add the required env variables to \`.env.local\`.
+
+📖 [Better Auth Documentation](https://www.better-auth.com/)
+`;
+    }
+
+    // ── Database ─────────────────────────────────────────────────────
     if (database === 'prisma') {
       readmeContent += `
-## Prisma Setup
+## 🗄️ Database — Prisma
 
-1. Update your \`.env\` file with your database connection string.
-2. Run migrations:
-   \`\`\`bash
-   npx prisma migrate dev
-   \`\`\`
+| Command | Description |
+| --- | --- |
+| \`npx prisma generate\` | Regenerate the Prisma client after schema changes |
+| \`npx prisma migrate dev --name <name>\` | Create and apply a new migration |
+| \`npx prisma studio\` | Open the visual database editor |
+| \`npx prisma db seed\` | Run the seed script (if configured) |
+
+**Environment variable:**
+
+\`\`\`env
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+\`\`\`
+
+📖 [Prisma with Next.js](https://www.prisma.io/nextjs)
 `;
-    }
-
-    if (database === 'drizzle') {
+    } else if (database === 'drizzle') {
       readmeContent += `
-## Drizzle Setup
+## 🗄️ Database — Drizzle ORM
 
-1. Update your \`.env\` file with your database credentials.
-2. Push schema changes:
-   \`\`\`bash
-   npm run db:push
-   \`\`\`
+| Command | Description |
+| --- | --- |
+| \`npm run db:push\` | Push schema changes to the database |
+| \`npm run db:studio\` | Open Drizzle Studio (if script is configured) |
+| \`npx drizzle-kit generate\` | Generate SQL migration files |
+
+**Environment variable:**
+
+\`\`\`env
+DATABASE_URL="postgresql://user:password@localhost:5432/mydb"
+\`\`\`
+
+📖 [Drizzle ORM Docs](https://orm.drizzle.team/)
+`;
+    } else if (database === 'mongoose') {
+      readmeContent += `
+## 🗄️ Database — Mongoose
+
+The MongoDB connection is initialised in \`lib/mongodb.ts\`. Models are defined in the \`models/\` directory.
+
+**Environment variable:**
+
+\`\`\`env
+MONGODB_URI="mongodb://localhost:27017/mydb"
+\`\`\`
+
+📖 [Mongoose Documentation](https://mongoosejs.com/docs/)
+`;
+    } else if (database === 'firebase') {
+      readmeContent += `
+## 🗄️ Database — Firebase (Firestore)
+
+Firestore is configured via the same Firebase project as Authentication. See the Firebase Auth section above for env variables.
+
+📖 [Firestore Documentation](https://firebase.google.com/docs/firestore)
 `;
     }
+
+    // ── API Layer ────────────────────────────────────────────────────
+    if (api === 'trpc') {
+      readmeContent += `
+## 🔌 API Layer — tRPC
+
+tRPC is set up with end-to-end type safety.
+
+- **Server router**: \`${srcDir ? 'src/' : ''}server/routers/\`
+- **Client hook**: import from \`@/lib/trpc\`
+
+No additional env variables are required for tRPC itself.
+
+📖 [tRPC Documentation](https://trpc.io/docs)
+`;
+    } else if (api === 'graphql') {
+      readmeContent += `
+## 🔌 API Layer — GraphQL
+
+GraphQL is set up with [graphql-yoga](https://the-guild.dev/graphql/yoga-server).
+
+- **Schema & resolvers**: \`${srcDir ? 'src/' : ''}${router === 'app' ? 'app/api/graphql/' : 'pages/api/graphql.ts'}\`
+- **Endpoint**: \`/api/graphql\`
+
+📖 [graphql-yoga Docs](https://the-guild.dev/graphql/yoga-server/docs)
+`;
+    }
+
+    // ── State Management ─────────────────────────────────────────────
+    if (state === 'zustand') {
+      readmeContent += `
+## 🧠 State Management — Zustand
+
+Stores are located in \`${srcDir ? 'src/' : ''}store/\`. Import and use them directly in your components:
+
+\`\`\`tsx
+import { useStore } from '@/store/store';
+
+function MyComponent() {
+  const { count, increment } = useStore();
+  return <button onClick={increment}>{count}</button>;
+}
+\`\`\`
+
+📖 [Zustand Documentation](https://docs.pmnd.rs/zustand)
+`;
+    } else if (state === 'redux') {
+      readmeContent += `
+## 🧠 State Management — Redux Toolkit
+
+The Redux store is configured in \`${srcDir ? 'src/' : ''}store/store.ts\`. Slices live alongside in the \`store/\` directory.
+
+📖 [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+`;
+    } else if (state === 'jotai') {
+      readmeContent += `
+## 🧠 State Management — Jotai
+
+Atoms are defined in \`${srcDir ? 'src/' : ''}store/\`. Use them with the \`useAtom\` hook:
+
+\`\`\`tsx
+import { useAtom } from 'jotai';
+import { countAtom } from '@/store/atoms';
+
+function MyComponent() {
+  const [count, setCount] = useAtom(countAtom);
+  return <button onClick={() => setCount((c) => c + 1)}>{count}</button>;
+}
+\`\`\`
+
+📖 [Jotai Documentation](https://jotai.org/)
+`;
+    }
+
+    // ── Payment ──────────────────────────────────────────────────────
+    if (payment === 'stripe') {
+      readmeContent += `
+## 💳 Payments — Stripe
+
+1. Create a Stripe account at [stripe.com](https://stripe.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   STRIPE_SECRET_KEY=sk_test_...
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   \`\`\`
+3. For local webhook testing, use the Stripe CLI:
+   \`\`\`bash
+   stripe listen --forward-to localhost:3000/api/webhooks/stripe
+   \`\`\`
+
+📖 [Stripe Next.js Integration](https://stripe.com/docs/stripe-js/react)
+`;
+    } else if (payment === 'lemonsqueezy') {
+      readmeContent += `
+## 💳 Payments — Lemon Squeezy
+
+1. Create a Lemon Squeezy account at [lemonsqueezy.com](https://www.lemonsqueezy.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   LEMONSQUEEZY_API_KEY=...
+   LEMONSQUEEZY_STORE_ID=...
+   LEMONSQUEEZY_WEBHOOK_SECRET=...
+   \`\`\`
+
+📖 [Lemon Squeezy Docs](https://docs.lemonsqueezy.com/)
+`;
+    } else if (payment === 'paddle') {
+      readmeContent += `
+## 💳 Payments — Paddle
+
+1. Create a Paddle account at [paddle.com](https://www.paddle.com).
+2. Add the required API keys to \`.env.local\`.
+
+📖 [Paddle Developer Docs](https://developer.paddle.com/)
+`;
+    } else if (payment === 'dodo') {
+      readmeContent += `
+## 💳 Payments — Dodo Payments
+
+1. Create a Dodo Payments account.
+2. Add the required API keys to \`.env.local\`.
+
+📖 [Dodo Payments Documentation](https://dodopayments.com/docs)
+`;
+    } else if (payment === 'polar') {
+      readmeContent += `
+## 💳 Payments — Polar
+
+1. Create a Polar account at [polar.sh](https://polar.sh).
+2. Add the required API keys to \`.env.local\`.
+
+📖 [Polar Documentation](https://docs.polar.sh/)
+`;
+    }
+
+    // ── AI ────────────────────────────────────────────────────────────
+    if (ai === 'vercel-ai-sdk') {
+      readmeContent += `
+## 🤖 AI — Vercel AI SDK
+
+1. Add your OpenAI key (or another supported provider) to \`.env.local\`:
+   \`\`\`env
+   OPENAI_API_KEY=sk-...
+   \`\`\`
+2. The AI route handler is located at \`${srcDir ? 'src/' : ''}${router === 'app' ? 'app/api/chat/route.ts' : 'pages/api/chat.ts'}\`.
+3. Use the \`useChat\` or \`useCompletion\` hooks on the client:
+   \`\`\`tsx
+   import { useChat } from 'ai/react';
+
+   export default function Chat() {
+     const { messages, input, handleInputChange, handleSubmit } = useChat();
+     // ...
+   }
+   \`\`\`
+
+📖 [Vercel AI SDK Docs](https://sdk.vercel.ai/docs)
+`;
+    }
+
+    // ── Monitoring ───────────────────────────────────────────────────
+    if (monitoring === 'sentry') {
+      readmeContent += `
+## 📊 Monitoring — Sentry
+
+1. Create a Sentry project at [sentry.io](https://sentry.io).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   SENTRY_DSN=https://<key>@sentry.io/<project>
+   \`\`\`
+3. Sentry is initialised in \`sentry.client.config.ts\` and \`sentry.server.config.ts\`.
+
+📖 [Sentry Next.js Guide](https://docs.sentry.io/platforms/javascript/guides/nextjs/)
+`;
+    } else if (monitoring === 'posthog') {
+      readmeContent += `
+## 📊 Analytics — PostHog
+
+1. Create a PostHog project at [posthog.com](https://posthog.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXT_PUBLIC_POSTHOG_KEY=phc_...
+   NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+   \`\`\`
+3. The PostHog provider is wired up in the providers component.
+
+📖 [PostHog Next.js Docs](https://posthog.com/docs/libraries/next-js)
+`;
+    } else if (monitoring === 'logrocket') {
+      readmeContent += `
+## 📊 Monitoring — LogRocket
+
+1. Create a LogRocket project at [logrocket.com](https://logrocket.com).
+2. Update the App ID in the LogRocket provider component.
+
+📖 [LogRocket Documentation](https://docs.logrocket.com/)
+`;
+    } else if (monitoring === 'google-analytics') {
+      readmeContent += `
+## 📊 Analytics — Google Analytics
+
+1. Create a GA4 property at [analytics.google.com](https://analytics.google.com).
+2. Add the following to \`.env.local\`:
+   \`\`\`env
+   NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-XXXXXXXXXX
+   \`\`\`
+3. The \`<GoogleAnalytics>\` component is already included in your root layout.
+
+📖 [Next.js Third-Party Libraries](https://nextjs.org/docs/messages/next-script-for-ga)
+`;
+    } else if (monitoring === 'vercel-analytics') {
+      readmeContent += `
+## 📊 Analytics — Vercel Analytics
+
+Vercel Analytics is zero-config on Vercel deployments. The \`<Analytics />\` component is already included in your root layout.
+
+For local development, analytics events are logged to the console.
+
+📖 [Vercel Analytics Docs](https://vercel.com/docs/analytics)
+`;
+    }
+
+    // ── I18n ─────────────────────────────────────────────────────────
+    if (i18n === 'next-intl') {
+      readmeContent += `
+## 🌐 Internationalization — next-intl
+
+**Configured locales:** ${supportedLocales.join(', ')}
+
+- Translation files are in \`messages/\` (e.g. \`messages/en.json\`).
+- Use the \`useTranslations\` hook in components:
+  \`\`\`tsx
+  import { useTranslations } from 'next-intl';
+
+  export default function MyPage() {
+    const t = useTranslations('MyNamespace');
+    return <h1>{t('title')}</h1>;
+  }
+  \`\`\`
+${i18nRouting === 'prefix' ? '- Locale prefixed routes are enabled (e.g. `/en/about`, `/ar/about`).' : '- Locale detection is enabled without URL prefixes.'}
+
+📖 [next-intl Documentation](https://next-intl-docs.vercel.app/)
+`;
+    } else if (i18n === 'react-i18next') {
+      readmeContent += `
+## 🌐 Internationalization — react-i18next
+
+- Translation files are in the \`locales/\` directory.
+- Use the \`useTranslation\` hook in components:
+  \`\`\`tsx
+  import { useTranslation } from 'react-i18next';
+
+  export default function MyPage() {
+    const { t } = useTranslation();
+    return <h1>{t('title')}</h1>;
+  }
+  \`\`\`
+
+📖 [react-i18next Documentation](https://react.i18next.com/)
+`;
+    }
+
+    // ── SEO ──────────────────────────────────────────────────────────
+    if (seo) {
+      readmeContent += `
+## 🔍 SEO — next-sitemap
+
+A sitemap is automatically generated at build time.
+
+- Config file: \`next-sitemap.config.js\`
+- After building, the sitemap is available at \`/sitemap.xml\`.
+
+\`\`\`bash
+npm run build
+# sitemap generated at public/sitemap.xml
+\`\`\`
+
+📖 [next-sitemap Documentation](https://github.com/iamvishnusankar/next-sitemap)
+`;
+    }
+
+    // ── Testing ──────────────────────────────────────────────────────
+    if (testing) {
+      readmeContent += `
+## 🧪 Testing — Vitest
+
+| Command | Description |
+| --- | --- |
+| \`npm run test\` | Run all tests |
+| \`npm run test:watch\` | Run tests in watch mode |
+| \`npm run test:coverage\` | Generate a coverage report |
+
+Tests are written with **Vitest** and **React Testing Library**.
+Place test files next to their components (e.g. \`Button.test.tsx\`) or in a \`__tests__/\` directory.
+
+📖 [Vitest Documentation](https://vitest.dev/) · [React Testing Library Docs](https://testing-library.com/docs/react-testing-library/intro/)
+`;
+    }
+
+    // ── Docker ───────────────────────────────────────────────────────
+    if (features?.docker) {
+      readmeContent += `
+## 🐳 Docker
+
+Build and run the production container:
+
+\`\`\`bash
+# Build the image
+docker build -t ${projectName} .
+
+# Run the container
+docker run -p 3000:3000 ${projectName}
+\`\`\`
+
+Or use Docker Compose:
+
+\`\`\`bash
+docker compose up -d
+\`\`\`
+
+📖 [Next.js Docker Example](https://github.com/vercel/next.js/tree/canary/examples/with-docker)
+`;
+    }
+
+    // ── Storybook ────────────────────────────────────────────────────
+    if (features?.storybook) {
+      readmeContent += `
+## 📖 Storybook
+
+| Command | Description |
+| --- | --- |
+| \`npm run storybook\` | Start Storybook dev server on port 6006 |
+| \`npm run build-storybook\` | Build a static Storybook site |
+
+Stories are located alongside components (e.g. \`Button.stories.tsx\`).
+
+📖 [Storybook for Next.js](https://storybook.js.org/recipes/next)
+`;
+    }
+
+    // ── Linter ───────────────────────────────────────────────────────
+    if (linter === 'eslint') {
+      readmeContent += `
+## 🧹 Linting — ESLint
+
+\`\`\`bash
+npm run lint          # Check for issues
+npm run lint -- --fix # Auto-fix issues
+\`\`\`
+
+📖 [ESLint Documentation](https://eslint.org/)
+`;
+    } else if (linter === 'biome') {
+      readmeContent += `
+## 🧹 Linting & Formatting — Biome
+
+\`\`\`bash
+npx @biomejs/biome check .       # Check for issues
+npx @biomejs/biome check --write . # Auto-fix & format
+\`\`\`
+
+📖 [Biome Documentation](https://biomejs.dev/)
+`;
+    }
+
+    // ── Deployment ───────────────────────────────────────────────────
+    readmeContent += `
+## 🚀 Deployment
+
+The easiest way to deploy your Next.js app is on [Vercel](https://vercel.com/new):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+
+Alternatively, you can deploy anywhere that supports Node.js:
+
+\`\`\`bash
+npm run build
+npm start
+\`\`\`
+${features?.docker ? '\nOr deploy using the included Dockerfile (see the Docker section above).\n' : ''}
+## Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs) — learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) — an interactive Next.js tutorial.
+`;
 
     archive.append(Buffer.from(readmeContent), { name: 'README.md' });
 
