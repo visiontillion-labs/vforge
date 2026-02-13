@@ -31,17 +31,28 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   Loader2,
   Rocket,
   ShoppingCart,
   Newspaper,
   RotateCcw,
   AlertTriangle,
+  Share2,
+  Check,
+  Link2,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ProjectPreview } from '@/components/project-preview';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { buildShareUrl, decodeConfig } from '@/lib/config-url';
 
 const formSchema = z.object({
   projectName: z
@@ -249,11 +260,59 @@ const presets: Preset[] = [
 export function GeneratorForm() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
+  const [hasCopied, setHasCopied] = useState(false);
+  const [isSharedConfig, setIsSharedConfig] = useState(false);
+  const searchParams = useSearchParams();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues,
   });
+
+  // ── Restore config from URL on mount ──────────────────────────────
+  useEffect(() => {
+    const configParam = searchParams.get('config');
+    if (configParam) {
+      const decoded = decodeConfig(configParam);
+      if (decoded) {
+        form.reset({ ...defaultValues, ...decoded } as FormValues);
+        setIsSharedConfig(true);
+        toast.success('Shared configuration loaded!', {
+          description: 'The form has been pre-filled with a shared setup.',
+        });
+      }
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Share handler ─────────────────────────────────────────────────
+  const handleShare = useCallback(async () => {
+    const values = form.getValues();
+    const url = buildShareUrl(values);
+
+    try {
+      await navigator.clipboard.writeText(url);
+      setHasCopied(true);
+      toast.success('Share link copied!', {
+        description: 'Anyone with this link will see your exact configuration.',
+      });
+      setTimeout(() => setHasCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setHasCopied(true);
+      toast.success('Share link copied!');
+      setTimeout(() => setHasCopied(false), 2000);
+    }
+  }, [form]);
 
   function applyPreset(preset: Preset) {
     if (activePreset === preset.id) {
@@ -349,10 +408,66 @@ export function GeneratorForm() {
     <div className='w-full grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 items-start'>
       <Card>
         <CardHeader>
-          <CardTitle>Configure Your Next.js Application</CardTitle>
-          <CardDescription>
-            Select from a wide range of features to boost your development.
-          </CardDescription>
+          <div className='flex items-start justify-between gap-4'>
+            <div>
+              <CardTitle>Configure Your Next.js Application</CardTitle>
+              <CardDescription>
+                Select from a wide range of features to boost your development.
+              </CardDescription>
+            </div>
+
+            {/* Share Configuration Button */}
+            <TooltipProvider delayDuration={0}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type='button'
+                    variant='outline'
+                    size='sm'
+                    onClick={handleShare}
+                    className='shrink-0 gap-2 transition-all'
+                  >
+                    {hasCopied ? (
+                      <>
+                        <Check className='size-4 text-green-500' />
+                        <span className='hidden sm:inline'>Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Share2 className='size-4' />
+                        <span className='hidden sm:inline'>Share</span>
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side='bottom'>
+                  <p>Copy a shareable link with your current configuration</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          {/* Shared Config Banner */}
+          {isSharedConfig && (
+            <div className='flex items-center gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 mt-3'>
+              <Link2 className='size-4 shrink-0' />
+              <span>
+                This configuration was loaded from a shared link. Feel free to
+                modify it before generating.
+              </span>
+              <button
+                type='button'
+                onClick={() => {
+                  setIsSharedConfig(false);
+                  // Clean the URL without reloading
+                  window.history.replaceState({}, '', window.location.pathname);
+                }}
+                className='ml-auto text-xs underline hover:no-underline shrink-0'
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
 
           {/* Preset Templates */}
           <div className='flex flex-wrap gap-2 pt-4'>

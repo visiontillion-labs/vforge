@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { GeneratorForm } from '@/components/generator-form';
 
 export default function Home() {
@@ -14,7 +15,9 @@ export default function Home() {
           </p>
         </div>
 
-        <GeneratorForm />
+        <Suspense fallback={null}>
+          <GeneratorForm />
+        </Suspense>
 
         <footer className='text-sm text-muted-foreground mt-8'>
           Built with Next.js, shadcn/ui, and Tailwind CSS.
