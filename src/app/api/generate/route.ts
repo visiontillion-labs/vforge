@@ -137,6 +137,7 @@ export async function POST(req: NextRequest) {
         if (
           router === 'app' &&
           i18n === 'next-intl' &&
+          i18nRouting !== 'no-prefix' &&
           source === routerDir // Ensure we are processing the main app files
         ) {
           const normalizedFile = file.replace(/\\/g, '/');

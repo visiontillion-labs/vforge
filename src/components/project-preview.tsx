@@ -134,6 +134,8 @@ interface ProjectPreviewProps {
       shadcn: boolean;
       reactCompiler: boolean;
       docker: boolean;
+      git: boolean;
+      storybook: boolean;
     };
     auth: string;
     database: string;
@@ -143,6 +145,7 @@ interface ProjectPreviewProps {
     ai: string;
     monitoring: string;
     i18n: string;
+    i18nRouting?: string;
     languages?: string;
     seo: boolean;
     testing: boolean;

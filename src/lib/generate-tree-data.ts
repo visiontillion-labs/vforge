@@ -28,6 +28,7 @@ interface FormValues {
   ai: string;
   monitoring: string;
   i18n: string;
+  i18nRouting?: string;
   languages?: string;
   seo: boolean;
   testing: boolean;
@@ -118,7 +119,9 @@ export function buildTreeData(values: FormValues): TreeData {
   // ── Router files ──
   if (values.router === 'app') {
     const appDir =
-      values.i18n === 'next-intl' ? `${src}app/[locale]` : `${src}app`;
+      values.i18n === 'next-intl' && values.i18nRouting !== 'no-prefix'
+        ? `${src}app/[locale]`
+        : `${src}app`;
     addPath(tree, `${appDir}/layout.${extx}`);
     addPath(tree, `${appDir}/page.${extx}`);
     addPath(tree, `${src}app/globals.css`);
@@ -266,6 +269,17 @@ export function buildTreeData(values: FormValues): TreeData {
         break;
       case 'logrocket':
         addPath(tree, `${src}app/providers/logrocket-provider.${extx}`);
+        break;
+      case 'logrocket':
+        addPath(tree, `${src}app/providers/logrocket-provider.${extx}`);
+        break;
+      case 'google-analytics':
+        // No extra file, but maybe layout modification?
+        // Usually GA is just injected, but let's show it in package.json (already done implicitly)
+        // Or if we had a component
+        break;
+      case 'vercel-analytics':
+        // Same, usually just injection
         break;
     }
   }
