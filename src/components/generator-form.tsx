@@ -66,6 +66,7 @@ const formSchema = z.object({
     reactCompiler: z.boolean(),
     docker: z.boolean(),
     git: z.boolean(),
+    storybook: z.boolean(),
   }),
   // New Features
   auth: z.enum([
@@ -112,6 +113,7 @@ const defaultValues: FormValues = {
     reactCompiler: false,
     docker: false,
     git: true,
+    storybook: false,
   },
   auth: 'none',
   database: 'none',
@@ -152,6 +154,7 @@ const presets: Preset[] = [
         reactCompiler: false,
         docker: true,
         git: true,
+        storybook: false,
       },
       auth: 'authjs',
       database: 'prisma',
@@ -182,6 +185,7 @@ const presets: Preset[] = [
         reactCompiler: false,
         docker: true,
         git: true,
+        storybook: false,
       },
       auth: 'clerk',
       database: 'drizzle',
@@ -213,6 +217,7 @@ const presets: Preset[] = [
         reactCompiler: false,
         docker: false,
         git: true,
+        storybook: false,
       },
       auth: 'next-auth',
       database: 'prisma',
@@ -878,6 +883,24 @@ export function GeneratorForm() {
                       <div className='space-y-0.5'>
                         <FormLabel className='text-base'>Git Init</FormLabel>
                         <FormDescription>Include .gitignore</FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name='features.storybook'
+                  render={({ field }) => (
+                    <FormItem className='flex flex-row items-center justify-between rounded-lg border p-4'>
+                      <div className='space-y-0.5'>
+                        <FormLabel className='text-base'>Storybook</FormLabel>
+                        <FormDescription>Install Storybook v8</FormDescription>
                       </div>
                       <FormControl>
                         <Switch

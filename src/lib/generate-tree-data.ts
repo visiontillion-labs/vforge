@@ -18,6 +18,7 @@ interface FormValues {
     reactCompiler: boolean;
     docker: boolean;
     git: boolean;
+    storybook: boolean;
   };
   auth: string;
   database: string;
@@ -314,6 +315,17 @@ export function buildTreeData(values: FormValues): TreeData {
     values.monitoring !== 'none';
   if (needsEnv) {
     addPath(tree, '.env.example');
+  }
+
+  // ── Storybook ──
+  if (values.features.storybook) {
+    addPath(tree, '.storybook/main.ts');
+    addPath(tree, '.storybook/preview.ts');
+    // Example stories
+    const storiesDir = values.srcDir ? 'src/stories' : 'stories';
+    addPath(tree, `${storiesDir}/Button.tsx`);
+    addPath(tree, `${storiesDir}/Button.stories.ts`);
+    addPath(tree, `${storiesDir}/button.css`);
   }
 
   // Sort children: folders first, then files, alphabetically

@@ -80,7 +80,14 @@ export async function POST(req: NextRequest) {
         if (file === 'package.json') return;
 
         // Start Git check
-        if (file === '.gitignore' && !features?.git) return;
+        if (file === '.gitignore') {
+          if (!features?.git) return;
+          if (features?.storybook) {
+            let gitIgnoreContent = content.toString('utf-8');
+            gitIgnoreContent += '\n# Storybook\nstorybook-static\n';
+            content = Buffer.from(gitIgnoreContent);
+          }
+        }
         // End Git check
 
         // Handle Linter Configs
@@ -446,6 +453,11 @@ export async function getStaticProps(context) {
       addDirectory(path.join(extrasDir, 'testing'));
     }
 
+    // Storybook
+    if (features?.storybook) {
+      addDirectory(path.join(extrasDir, 'storybook'));
+    }
+
     // --- Providers Generation ---
     // We need to generate a Providers component that wraps everything.
     // Logic:
@@ -651,6 +663,22 @@ export function Providers({ children }: { children: React.ReactNode }) {
         packageJson.devDependencies['jsdom'] = '^24.0.0';
         packageJson.devDependencies['@testing-library/react'] = '^14.2.0';
         packageJson.devDependencies['@testing-library/jest-dom'] = '^6.4.2';
+      }
+
+      // Storybook
+      if (features?.storybook) {
+        packageJson.devDependencies['storybook'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/react'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/nextjs'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/addon-essentials'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/addon-interactions'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/addon-links'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/addon-onboarding'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/blocks'] = '^8.0.0';
+        packageJson.devDependencies['@storybook/test'] = '^8.0.0';
+
+        packageJson.scripts['storybook'] = 'storybook dev -p 6006';
+        packageJson.scripts['build-storybook'] = 'storybook build';
       }
 
       archive.append(JSON.stringify(packageJson, null, 2), {
