@@ -467,7 +467,7 @@ export function GeneratorForm() {
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                           className='flex flex-col space-y-1 mt-2'
                         >
                           <FormItem className='flex items-center space-x-3 space-y-0'>
@@ -501,7 +501,7 @@ export function GeneratorForm() {
                       <FormControl>
                         <RadioGroup
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                           className='flex flex-col space-y-1 mt-2'
                         >
                           <FormItem className='flex items-center space-x-3 space-y-0'>
@@ -539,7 +539,7 @@ export function GeneratorForm() {
                       <FormLabel>Authentication</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -574,7 +574,7 @@ export function GeneratorForm() {
                       <FormLabel>Database</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -607,7 +607,7 @@ export function GeneratorForm() {
                       <FormLabel>API Layer</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -634,7 +634,7 @@ export function GeneratorForm() {
                       <FormLabel>State Management</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -662,7 +662,7 @@ export function GeneratorForm() {
                       <FormLabel>Payment Gateway</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -694,7 +694,7 @@ export function GeneratorForm() {
                       <FormLabel>AI Integration</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -722,7 +722,7 @@ export function GeneratorForm() {
                       <FormLabel>Analytics & Monitoring</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -756,7 +756,7 @@ export function GeneratorForm() {
                       <FormLabel>Internationalization</FormLabel>
                       <Select
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
@@ -785,7 +785,7 @@ export function GeneratorForm() {
                         <FormLabel>Routing Strategy</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value || 'prefix'}
+                          value={field.value || 'prefix'}
                         >
                           <FormControl>
                             <SelectTrigger>
