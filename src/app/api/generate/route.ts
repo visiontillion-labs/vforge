@@ -811,67 +811,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Generate .env.example
-    let envContent = '';
-
-    if (auth !== 'none') {
-      envContent += `# Authentication (${auth})\n`;
-      if (auth === 'authjs' || auth === 'next-auth') {
-        envContent += `AUTH_SECRET=your_secret_here\n`;
-        if (auth === 'authjs') envContent += `AUTH_URL=http://localhost:3000\n`;
-        else
-          envContent += `NEXTAUTH_URL=http://localhost:3000\nNEXTAUTH_SECRET=your_secret_here\n`;
-      } else if (auth === 'clerk') {
-        envContent += `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...\nCLERK_SECRET_KEY=sk_test_...\n`;
-      } else if (auth === 'supabase') {
-        envContent += `NEXT_PUBLIC_SUPABASE_URL=your_supabase_url\nNEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key\n`;
-      } else if (auth === 'firebase') {
-        envContent += `NEXT_PUBLIC_FIREBASE_API_KEY=...\nNEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=...\nNEXT_PUBLIC_FIREBASE_PROJECT_ID=...\n`;
-      }
-      envContent += '\n';
-    }
-
-    if (database !== 'none') {
-      envContent += `# Database (${database})\n`;
-      if (database === 'prisma' || database === 'drizzle') {
-        envContent += `DATABASE_URL="postgresql://user:password@localhost:5432/mydb"\n`;
-      } else if (database === 'mongoose') {
-        envContent += `MONGODB_URI="mongodb://localhost:27017/mydb"\n`;
-      }
-      envContent += '\n';
-    }
-
-    if (payment !== 'none') {
-      envContent += `# Payment (${payment})\n`;
-      if (payment === 'stripe') {
-        envContent += `STRIPE_SECRET_KEY=sk_test_...\nNEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...\nSTRIPE_WEBHOOK_SECRET=whsec_...\n`;
-      } else if (payment === 'lemonsqueezy') {
-        envContent += `LEMONSQUEEZY_API_KEY=...\nLEMONSQUEEZY_STORE_ID=...\nLEMONSQUEEZY_WEBHOOK_SECRET=...\n`;
-      }
-      envContent += '\n';
-    }
-
-    if (ai === 'vercel-ai-sdk') {
-      envContent += `# AI\nOPENAI_API_KEY=sk-...\n\n`;
-    }
-
-    if (monitoring !== 'none') {
-      envContent += `# Monitoring (${monitoring})\n`;
-      if (monitoring === 'sentry') {
-        envContent += `SENTRY_DSN=...\n`;
-      } else if (monitoring === 'posthog') {
-        envContent += `NEXT_PUBLIC_POSTHOG_KEY=...\nNEXT_PUBLIC_POSTHOG_HOST=...\n`;
-      } else if (monitoring === 'google-analytics') {
-        envContent += `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-...\n`;
-      }
-      envContent += '\n';
-    }
-
-    if (envContent.trim() !== '') {
-      archive.append(Buffer.from(envContent), { name: '.env.example' });
-    }
-
-    // Generate README.md
     // ── Helper maps for human-readable names ────────────────────────
     const authNames: Record<string, string> = {
       authjs: 'Auth.js (v5)',
@@ -918,6 +857,94 @@ export function Providers({ children }: { children: React.ReactNode }) {
       eslint: 'ESLint',
       biome: 'Biome',
     };
+
+    // Generate .env.example
+    let envContent = '';
+
+    // Core
+    envContent += `# App\nNEXT_PUBLIC_APP_URL="http://localhost:3000"\n\n`;
+
+    // Authentication
+    if (auth !== 'none') {
+      envContent += `# Authentication (${authNames[auth] || auth})\n`;
+      if (auth === 'authjs') {
+        envContent += `AUTH_SECRET="your_generated_secret"\nAUTH_URL="http://localhost:3000"\n`;
+        envContent += `# AUTH_GOOGLE_ID=""\n# AUTH_GOOGLE_SECRET=""\n`;
+      } else if (auth === 'next-auth') {
+        envContent += `NEXTAUTH_URL="http://localhost:3000"\nNEXTAUTH_SECRET="your_generated_secret"\n`;
+        envContent += `# GITHUB_ID=""\n# GITHUB_SECRET=""\n`;
+      } else if (auth === 'clerk') {
+        envContent += `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."\nCLERK_SECRET_KEY="sk_test_..."\n`;
+        envContent += `NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"\nNEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"\n`;
+      } else if (auth === 'supabase') {
+        envContent += `NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"\nNEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"\n`;
+      } else if (auth === 'firebase') {
+        envContent += `NEXT_PUBLIC_FIREBASE_API_KEY=""\nNEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=""\nNEXT_PUBLIC_FIREBASE_PROJECT_ID=""\nNEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=""\nNEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=""\nNEXT_PUBLIC_FIREBASE_APP_ID=""\n`;
+      } else if (auth === 'better-auth') {
+        envContent += `BETTER_AUTH_SECRET="your_generated_secret"\nBETTER_AUTH_URL="http://localhost:3000"\n`;
+      }
+      envContent += '\n';
+    }
+
+    // Database
+    if (database !== 'none') {
+      envContent += `# Database (${dbNames[database] || database})\n`;
+      if (database === 'prisma') {
+        envContent += `DATABASE_URL="postgresql://user:password@localhost:5432/mydb?schema=public"\n`;
+        envContent += `# DIRECT_URL="postgresql://user:password@localhost:5432/mydb?schema=public" # For serverless (Neon/Supabase)\n`;
+      } else if (database === 'drizzle') {
+        envContent += `DATABASE_URL="postgresql://user:password@localhost:5432/mydb"\n`;
+      } else if (database === 'mongoose') {
+        envContent += `MONGODB_URI="mongodb://localhost:27017/mydb"\n`;
+      }
+      envContent += '\n';
+    }
+
+    // Payments
+    if (payment !== 'none') {
+      envContent += `# Payments (${paymentNames[payment] || payment})\n`;
+      if (payment === 'stripe') {
+        envContent += `STRIPE_SECRET_KEY="sk_test_..."\nNEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."\nSTRIPE_WEBHOOK_SECRET="whsec_..."\n`;
+      } else if (payment === 'lemonsqueezy') {
+        envContent += `LEMONSQUEEZY_API_KEY=""\nLEMONSQUEEZY_STORE_ID=""\nLEMONSQUEEZY_WEBHOOK_SECRET=""\n`;
+      } else if (payment === 'paddle') {
+        envContent += `PADDLE_API_KEY=""\nNEXT_PUBLIC_PADDLE_CLIENT_TOKEN=""\nPADDLE_WEBHOOK_SECRET=""\n`;
+      } else if (payment === 'dodo') {
+        envContent += `DODO_PAYMENTS_API_KEY=""\nDODO_PAYMENTS_WEBHOOK_SECRET=""\n`;
+      } else if (payment === 'polar') {
+        envContent += `POLAR_ACCESS_TOKEN=""\nPOLAR_ORGANIZATION_ID=""\n`;
+      }
+      envContent += '\n';
+    }
+
+    // AI
+    if (ai === 'vercel-ai-sdk') {
+      envContent += `# AI (Vercel AI SDK)\nOPENAI_API_KEY="sk-..."\n\n`;
+    }
+
+    // Monitoring & Analytics
+    if (monitoring !== 'none') {
+      envContent += `# Monitoring (${monitoringNames[monitoring] || monitoring})\n`;
+      if (monitoring === 'sentry') {
+        envContent += `SENTRY_AUTH_TOKEN=""\nSENTRY_DSN=""\nSENTRY_ORG=""\nSENTRY_PROJECT=""\n`;
+      } else if (monitoring === 'posthog') {
+        envContent += `NEXT_PUBLIC_POSTHOG_KEY="phc_..."\nNEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"\n`;
+      } else if (monitoring === 'logrocket') {
+        envContent += `NEXT_PUBLIC_LOGROCKET_APP_ID="org/app"\n`;
+      } else if (monitoring === 'google-analytics') {
+        envContent += `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID="G-..."\n`;
+      }
+      envContent += '\n';
+    }
+
+    // Email / Resend (if relevant, but not explicitly selected in form yet, maybe implicitly?)
+    // Skipping for now as it's not in the main feature list.
+
+    if (envContent.trim() !== '') {
+      archive.append(Buffer.from(envContent), { name: '.env.example' });
+    }
+
+    // Generate README.md
 
     let readmeContent = `# ${projectName}
 
