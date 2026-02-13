@@ -90,7 +90,14 @@ const formSchema = z.object({
     'polar',
   ]),
   ai: z.enum(['none', 'vercel-ai-sdk']),
-  monitoring: z.enum(['none', 'sentry', 'posthog', 'logrocket']),
+  monitoring: z.enum([
+    'none',
+    'sentry',
+    'posthog',
+    'logrocket',
+    'google-analytics',
+    'vercel-analytics',
+  ]),
   i18n: z.enum(['none', 'next-intl', 'react-i18next']),
   i18nRouting: z.enum(['prefix', 'no-prefix']).optional(),
   languages: z.string().optional(),
@@ -712,7 +719,7 @@ export function GeneratorForm() {
                   name='monitoring'
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Monitoring</FormLabel>
+                      <FormLabel>Analytics & Monitoring</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
@@ -727,6 +734,12 @@ export function GeneratorForm() {
                           <SelectItem value='sentry'>Sentry</SelectItem>
                           <SelectItem value='posthog'>PostHog</SelectItem>
                           <SelectItem value='logrocket'>LogRocket</SelectItem>
+                          <SelectItem value='google-analytics'>
+                            Google Analytics
+                          </SelectItem>
+                          <SelectItem value='vercel-analytics'>
+                            Vercel Analytics
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

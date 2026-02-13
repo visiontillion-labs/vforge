@@ -99,6 +99,40 @@ export async function POST(req: NextRequest) {
           return;
         if (linter !== 'biome' && file === 'biome.json') return;
 
+        // Handle Analytics for App Router
+        if (
+          router === 'app' &&
+          source === routerDir &&
+          ['google-analytics', 'vercel-analytics'].includes(monitoring)
+        ) {
+          const normalizedFile = file.replace(/\\/g, '/');
+          if (normalizedFile === 'src/app/layout.tsx') {
+            let layoutContent = content.toString('utf-8');
+
+            if (monitoring === 'google-analytics') {
+              layoutContent =
+                `import { GoogleAnalytics } from '@next/third-parties/google';\n` +
+                layoutContent;
+              layoutContent = layoutContent.replace(
+                '</body>',
+                `<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} /></body>`,
+              );
+            }
+
+            if (monitoring === 'vercel-analytics') {
+              layoutContent =
+                `import { Analytics } from '@vercel/analytics/react';\n` +
+                layoutContent;
+              layoutContent = layoutContent.replace(
+                '</body>',
+                `<Analytics /></body>`,
+              );
+            }
+
+            content = Buffer.from(layoutContent);
+          }
+        }
+
         // Handle Localization Restructuring for App Router (next-intl)
         if (
           router === 'app' &&
@@ -169,6 +203,45 @@ export function generateStaticParams() {
               );
               content = Buffer.from(pageContent);
             }
+          }
+        }
+
+        // Handle Analytics for Pages Router
+        if (
+          router === 'pages' &&
+          source === routerDir &&
+          ['google-analytics', 'vercel-analytics'].includes(monitoring)
+        ) {
+          const normalizedFile = file.replace(/\\/g, '/');
+          if (normalizedFile.endsWith('_app.tsx')) {
+            let appContent = content.toString('utf-8');
+
+            if (monitoring === 'google-analytics') {
+              appContent =
+                `import { GoogleAnalytics } from '@next/third-parties/google';\n` +
+                appContent;
+              // Wrap Component with Fragment and add GA
+              if (appContent.includes('<Component {...pageProps} />')) {
+                appContent = appContent.replace(
+                  '<Component {...pageProps} />',
+                  `<><Component {...pageProps} /><GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID || ""} /></>`,
+                );
+              }
+            }
+
+            if (monitoring === 'vercel-analytics') {
+              appContent =
+                `import { Analytics } from '@vercel/analytics/react';\n` +
+                appContent;
+              if (appContent.includes('<Component {...pageProps} />')) {
+                appContent = appContent.replace(
+                  '<Component {...pageProps} />',
+                  `<><Component {...pageProps} /><Analytics /></>`,
+                );
+              }
+            }
+
+            content = Buffer.from(appContent);
           }
         }
 
@@ -661,6 +734,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         packageJson.dependencies['posthog-js'] = '^1.100.0';
       } else if (monitoring === 'logrocket') {
         packageJson.dependencies['logrocket'] = '^8.0.0';
+      } else if (monitoring === 'google-analytics') {
+        packageJson.dependencies['@next/third-parties'] = '^13.4.0';
+      } else if (monitoring === 'vercel-analytics') {
+        packageJson.dependencies['@vercel/analytics'] = '^1.1.1';
       }
 
       // I18n
@@ -783,6 +860,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
         envContent += `SENTRY_DSN=...\n`;
       } else if (monitoring === 'posthog') {
         envContent += `NEXT_PUBLIC_POSTHOG_KEY=...\nNEXT_PUBLIC_POSTHOG_HOST=...\n`;
+      } else if (monitoring === 'google-analytics') {
+        envContent += `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=G-...\n`;
       }
       envContent += '\n';
     }
