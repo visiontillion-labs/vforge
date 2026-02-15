@@ -1,7 +1,23 @@
 {
-  "name": "boilerplate",
-  "version": "0.1.0",
-  "private": true,
+  "name": "nextjs-forge",
+  "version": "1.0.0",
+  "description": "The ultimate comprehensive boilerplate generator for Next.js projects",
+  "author": "Oriums",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Oriums/oriums-boilerplate.git"
+  },
+  "homepage": "https://nextjs-forge.oriums.dev",
+  "keywords": [
+    "nextjs",
+    "boilerplate",
+    "generator",
+    "react",
+    "typescript",
+    "tailwindcss",
+    "shadcn"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -23,6 +39,7 @@
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
+    "posthog-js": "^1.347.2",
     "radix-ui": "^1.4.3",
     "react": "19.2.3",
     "react-day-picker": "^9.13.2",

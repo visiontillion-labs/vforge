@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Forge
 
-## Getting Started
+The ultimate comprehensive boilerplate generator for Next.js projects. Configure your stack, customize your theme, and generate production-ready projects in seconds.
 
-First, run the development server:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org)
+
+## Features
+
+- **Full Stack Configuration** - Choose from 30+ integrations including auth, database, payments, state management, and more
+- **Theme Customization** - Customize radius, colors, fonts, and shadcn/ui components (like the shadcn themes page)
+- **Preset Templates** - Quick-start presets for SaaS, E-commerce, and Blog/CMS projects
+- **Live Preview** - Real-time file tree preview as you configure
+- **CLI Support** - Generate projects via `npx create-oriums-app` or download as ZIP
+- **Copyable Commands** - Copy installation commands directly from the UI
+- **Shareable Configs** - Share your configuration via URL
+
+## Supported Integrations
+
+| Category | Options |
+|----------|---------|
+| **Authentication** | Auth.js, NextAuth.js, Clerk, Supabase, Firebase, Better Auth |
+| **Database** | Prisma, Drizzle ORM, Mongoose, Firebase Firestore |
+| **API Layer** | tRPC, GraphQL |
+| **State Management** | Zustand, Redux Toolkit, Jotai |
+| **Payments** | Stripe, LemonSqueezy, Paddle, Dodo Payments, Polar |
+| **AI** | Vercel AI SDK |
+| **Monitoring** | Sentry, PostHog, LogRocket, Google Analytics, Vercel Analytics |
+| **i18n** | next-intl, react-i18next |
+| **SEO** | next-sitemap |
+| **Testing** | Vitest |
+| **DevOps** | Docker, Storybook |
+
+## Quick Start
+
+### Using the CLI
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx create-oriums-app my-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Or with a preset:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx create-oriums-app my-app --preset saas
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Using the Web App
 
-## Learn More
+Visit [nextjs-forge.oriums.dev](https://nextjs-forge.oriums.dev) to configure and download your boilerplate.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Prerequisites
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Node.js 18.x or later
+- npm, yarn, pnpm, or bun
 
-## Deploy on Vercel
+### Setup
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# Clone the repository
+git clone https://github.com/Oriums/oriums-boilerplate.git
+cd oriums-boilerplate
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+### Environment Variables (Optional)
+
+Create a `.env.local` file for analytics:
+
+```
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
+```
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS 4 + shadcn/ui
+- **Forms:** React Hook Form + Zod
+- **Analytics:** Plausible + PostHog
+- **Archiving:** Archiver (ZIP generation)
+
+## Contributing
+
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to get started.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- [shadcn/ui](https://ui.shadcn.com) for the incredible component library
+- [Next.js](https://nextjs.org) for the amazing framework
+- [Tailwind CSS](https://tailwindcss.com) for the utility-first CSS framework

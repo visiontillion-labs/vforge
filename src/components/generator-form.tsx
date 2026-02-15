@@ -36,6 +36,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Loader2,
   Rocket,
@@ -46,13 +48,33 @@ import {
   Share2,
   Check,
   Link2,
+  Palette,
+  Download,
+  Terminal,
+  FileCode,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { ProjectPreview } from '@/components/project-preview';
+import { CommandBlock } from '@/components/command-block';
 import { toast } from 'sonner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { buildShareUrl, decodeConfig } from '@/lib/config-url';
+import { analytics } from '@/lib/analytics';
+import { generateCommands } from '@/lib/generate-commands';
+import {
+  radiusOptions,
+  baseColorPresets,
+  primaryColorPresets,
+  fontOptions,
+  shadcnComponents,
+  shadcnComponentCategories,
+  type BaseColorId,
+  type PrimaryColorId,
+  type FontId,
+  type RadiusValue,
+} from '@/lib/color-presets';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   projectName: z
@@ -114,6 +136,18 @@ const formSchema = z.object({
   languages: z.string().optional(),
   seo: z.boolean(),
   testing: z.boolean(),
+  theme: z.object({
+    radius: z.number(),
+    baseColor: z.enum(['neutral', 'slate', 'zinc', 'gray', 'stone']),
+    primaryColor: z.enum([
+      'default', 'red', 'orange', 'amber', 'yellow', 'green',
+      'emerald', 'blue', 'violet', 'purple', 'pink', 'rose',
+    ]),
+    font: z.enum([
+      'inter', 'geist', 'plus-jakarta-sans', 'manrope', 'outfit', 'raleway',
+    ]),
+    components: z.array(z.string()),
+  }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -146,6 +180,13 @@ const defaultValues: FormValues = {
   languages: 'en',
   seo: false,
   testing: false,
+  theme: {
+    radius: 0.5,
+    baseColor: 'neutral',
+    primaryColor: 'default',
+    font: 'geist',
+    components: ['button', 'card', 'input', 'form', 'dialog'],
+  },
 };
 
 interface Preset {
@@ -297,6 +338,7 @@ export function GeneratorForm() {
       toast.success('Share link copied!', {
         description: 'Anyone with this link will see your exact configuration.',
       });
+      analytics.trackShareLinkCreated();
       setTimeout(() => setHasCopied(false), 2000);
     } catch {
       // Fallback for older browsers
@@ -322,6 +364,7 @@ export function GeneratorForm() {
     } else {
       form.reset({ ...defaultValues, ...preset.values });
       setActivePreset(preset.id);
+      analytics.trackPresetSelected(preset.id);
     }
   }
 
@@ -348,6 +391,32 @@ export function GeneratorForm() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Project generated successfully!');
+
+      // Track generation analytics
+      analytics.trackGeneration({
+        router: values.router,
+        language: values.language,
+        linter: values.linter,
+        srcDir: values.srcDir,
+        tailwind: values.features.tailwind,
+        shadcn: values.features.shadcn,
+        auth: values.auth,
+        database: values.database,
+        api: values.api,
+        state: values.state,
+        payment: values.payment,
+        ai: values.ai,
+        monitoring: values.monitoring,
+        i18n: values.i18n,
+        seo: values.seo,
+        testing: values.testing,
+        docker: values.features.docker,
+        storybook: values.features.storybook,
+        theme_radius: values.theme.radius,
+        theme_baseColor: values.theme.baseColor,
+        theme_primaryColor: values.theme.primaryColor,
+        theme_font: values.theme.font,
+      });
     } catch (error) {
       console.error(error);
       toast.error('Failed to generate project. Please try again.');
@@ -1077,6 +1146,213 @@ export function GeneratorForm() {
                 />
               </div>
 
+              {/* Theme & Styling */}
+              {watchedValues.features.shadcn && (
+                <div className='border-t pt-4 space-y-6'>
+                  <div className='flex items-center gap-2'>
+                    <Palette className='size-5 text-primary' />
+                    <h3 className='text-lg font-semibold'>Theme & Styling</h3>
+                  </div>
+
+                  {/* Radius */}
+                  <div className='space-y-2'>
+                    <Label className='text-sm font-medium'>Border Radius</Label>
+                    <div className='flex gap-2'>
+                      {radiusOptions.map((r) => (
+                        <button
+                          key={r}
+                          type='button'
+                          onClick={() =>
+                            form.setValue('theme.radius', r, { shouldValidate: true })
+                          }
+                          className={cn(
+                            'flex h-10 w-10 items-center justify-center border-2 text-xs font-medium transition-colors',
+                            watchedValues.theme.radius === r
+                              ? 'border-primary bg-primary text-primary-foreground'
+                              : 'border-border bg-background hover:border-primary/50',
+                          )}
+                          style={{ borderRadius: `${r * 0.5}rem` }}
+                        >
+                          {r}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Base Color */}
+                  <div className='space-y-2'>
+                    <Label className='text-sm font-medium'>Base Color</Label>
+                    <div className='flex gap-2 flex-wrap'>
+                      {baseColorPresets.map((preset) => (
+                        <button
+                          key={preset.id}
+                          type='button'
+                          onClick={() =>
+                            form.setValue('theme.baseColor', preset.id, {
+                              shouldValidate: true,
+                            })
+                          }
+                          className={cn(
+                            'flex h-9 items-center justify-center rounded-md border px-3 text-xs font-medium transition-colors',
+                            watchedValues.theme.baseColor === preset.id
+                              ? 'border-primary ring-2 ring-primary/20'
+                              : 'border-border hover:border-primary/50',
+                          )}
+                        >
+                          {watchedValues.theme.baseColor === preset.id && (
+                            <Check className='size-3 mr-1' />
+                          )}
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Primary Color */}
+                  <div className='space-y-2'>
+                    <Label className='text-sm font-medium'>Primary Color</Label>
+                    <div className='flex gap-2 flex-wrap'>
+                      {primaryColorPresets.map((preset) => (
+                        <button
+                          key={preset.id}
+                          type='button'
+                          onClick={() =>
+                            form.setValue('theme.primaryColor', preset.id, {
+                              shouldValidate: true,
+                            })
+                          }
+                          className={cn(
+                            'flex h-8 w-8 items-center justify-center rounded-md border transition-all',
+                            watchedValues.theme.primaryColor === preset.id
+                              ? 'ring-2 ring-offset-2 ring-offset-background scale-110'
+                              : 'hover:scale-105',
+                          )}
+                          style={{
+                            backgroundColor: preset.swatch,
+                            borderColor:
+                              watchedValues.theme.primaryColor === preset.id
+                                ? preset.swatch
+                                : 'transparent',
+                          }}
+                          title={preset.label}
+                        >
+                          {watchedValues.theme.primaryColor === preset.id && (
+                            <Check className='size-3 text-white' />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Font */}
+                  <FormField
+                    control={form.control}
+                    name='theme.font'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Font Family</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder='Select Font' />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {fontOptions.map((font) => (
+                              <SelectItem key={font.id} value={font.id}>
+                                {font.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+
+                  {/* shadcn Components */}
+                  <div className='space-y-3'>
+                    <Label className='text-sm font-medium'>
+                      shadcn/ui Components
+                    </Label>
+                    <p className='text-xs text-muted-foreground'>
+                      Select components to include in your project.
+                    </p>
+                    {shadcnComponentCategories.map((category) => (
+                      <div key={category} className='space-y-2'>
+                        <p className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>
+                          {category}
+                        </p>
+                        <div className='flex flex-wrap gap-1.5'>
+                          {shadcnComponents
+                            .filter((c) => c.category === category)
+                            .map((comp) => {
+                              const isSelected =
+                                watchedValues.theme.components?.includes(
+                                  comp.id,
+                                ) ?? false;
+                              return (
+                                <button
+                                  key={comp.id}
+                                  type='button'
+                                  onClick={() => {
+                                    const current =
+                                      form.getValues('theme.components') || [];
+                                    const next = isSelected
+                                      ? current.filter((c) => c !== comp.id)
+                                      : [...current, comp.id];
+                                    form.setValue('theme.components', next, {
+                                      shouldValidate: true,
+                                    });
+                                  }}
+                                  className={cn(
+                                    'rounded-md border px-2.5 py-1 text-xs font-medium transition-colors',
+                                    isSelected
+                                      ? 'border-primary bg-primary text-primary-foreground'
+                                      : 'border-border bg-background hover:border-primary/50 hover:bg-accent',
+                                  )}
+                                >
+                                  {comp.label}
+                                </button>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    ))}
+                    <div className='flex gap-2'>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        onClick={() => {
+                          form.setValue(
+                            'theme.components',
+                            shadcnComponents.map((c) => c.id),
+                            { shouldValidate: true },
+                          );
+                        }}
+                      >
+                        Select All
+                      </Button>
+                      <Button
+                        type='button'
+                        variant='outline'
+                        size='sm'
+                        onClick={() => {
+                          form.setValue('theme.components', [], {
+                            shouldValidate: true,
+                          });
+                        }}
+                      >
+                        Clear All
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {warnings.length > 0 && (
                 <div className='space-y-3'>
                   {warnings.map((warning, idx) => (
@@ -1093,16 +1369,72 @@ export function GeneratorForm() {
                 </div>
               )}
 
-              <Button type='submit' className='w-full' disabled={isGenerating}>
-                {isGenerating ? (
-                  <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                    Generating...
-                  </>
-                ) : (
-                  'Generate Project'
-                )}
-              </Button>
+              {/* Action Tabs: Download / CLI / Manual Steps */}
+              <Tabs defaultValue='download' className='w-full'>
+                <TabsList className='grid w-full grid-cols-3'>
+                  <TabsTrigger value='download' className='gap-1.5'>
+                    <Download className='size-3.5' />
+                    <span className='hidden sm:inline'>Download</span>
+                  </TabsTrigger>
+                  <TabsTrigger value='cli' className='gap-1.5'>
+                    <Terminal className='size-3.5' />
+                    <span className='hidden sm:inline'>CLI</span>
+                  </TabsTrigger>
+                  <TabsTrigger value='manual' className='gap-1.5'>
+                    <FileCode className='size-3.5' />
+                    <span className='hidden sm:inline'>Manual</span>
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value='download' className='space-y-3 mt-4'>
+                  <Button
+                    type='submit'
+                    className='w-full'
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Download className='mr-2 h-4 w-4' />
+                        Download ZIP
+                      </>
+                    )}
+                  </Button>
+                </TabsContent>
+
+                <TabsContent value='cli' className='space-y-3 mt-4'>
+                  <p className='text-sm text-muted-foreground'>
+                    Run this command to generate your project via CLI:
+                  </p>
+                  <CommandBlock
+                    commands={generateCommands(watchedValues).cli}
+                    onCopy={() => analytics.trackCommandCopied('cli')}
+                  />
+                </TabsContent>
+
+                <TabsContent value='manual' className='space-y-3 mt-4'>
+                  <p className='text-sm text-muted-foreground'>
+                    Follow these steps to set up your project manually:
+                  </p>
+                  {generateCommands(watchedValues).manual.map((step, idx) => (
+                    <div key={idx} className='space-y-1'>
+                      <p className='text-xs font-semibold text-muted-foreground'>
+                        {step.label}
+                      </p>
+                      <CommandBlock
+                        commands={step.command}
+                        onCopy={() =>
+                          analytics.trackCommandCopied(`manual-${step.label}`)
+                        }
+                      />
+                    </div>
+                  ))}
+                </TabsContent>
+              </Tabs>
             </form>
           </Form>
         </CardContent>
