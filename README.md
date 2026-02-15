@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Forge
 
-## Getting Started
+> The ultimate comprehensive boilerplate generator for your new Next.js projects. Configure, click, and code.
 
-First, run the development server:
+![License](https://img.shields.io/github/license/mustaquenadim/oriums-boilerplate)
+![Version](https://img.shields.io/github/package-json/v/mustaquenadim/oriums-boilerplate)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+**Next.js Forge** helps you kickstart your Next.js applications with a fully customizable boilerplate generator. Select your preferred database, authentication provider, UI components, and more to generate a production-ready codebase in seconds.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui
+- **Authentication**: Auth.js, Clerk, Lucia, Kinde (configurable)
+- **Database**: PostgreSQL, MySQL, SQLite, MongoDB (with Drizzle or Prisma)
+- **Forms**: React Hook Form + Zod
+- **Testing**: Jest + React Testing Library (optional)
+- **Linting**: ESLint + Prettier
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Quick Start
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+- Node.js 18+
+- pnpm (recommended) or npm/yarn/bun
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository:
 
-## Deploy on Vercel
+   ```bash
+   git clone https://github.com/mustaquenadim/oriums-boilerplate.git
+   cd oriums-boilerplate
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. Install dependencies:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+   ```bash
+   pnpm install
+   ```
+
+3. Run the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Author
+
+**Mustaque Nadim**
+
+- GitHub: [@mustaquenadim](https://github.com/mustaquenadim)

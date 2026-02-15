@@ -1,7 +1,25 @@
 {
   "name": "boilerplate",
   "version": "0.1.0",
-  "private": true,
+  "description": "The ultimate comprehensive boilerplate generator for your new Next.js projects.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mustaquenadim/oriums-boilerplate.git"
+  },
+  "author": "Mustaque Nadim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mustaquenadim/oriums-boilerplate/issues"
+  },
+  "homepage": "https://github.com/mustaquenadim/oriums-boilerplate#readme",
+  "keywords": [
+    "nextjs",
+    "boilerplate",
+    "generator",
+    "react",
+    "shadcn-ui",
+    "tailwindcss"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
