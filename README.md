@@ -1,65 +1,107 @@
 # Next.js Forge
 
-> The ultimate comprehensive boilerplate generator for your new Next.js projects. Configure, click, and code.
+The ultimate comprehensive boilerplate generator for Next.js projects. Configure your stack, customize your theme, and generate production-ready projects in seconds.
 
-![License](https://img.shields.io/github/license/mustaquenadim/oriums-boilerplate)
-![Version](https://img.shields.io/github/package-json/v/mustaquenadim/oriums-boilerplate)
-
-**Next.js Forge** helps you kickstart your Next.js applications with a fully customizable boilerplate generator. Select your preferred database, authentication provider, UI components, and more to generate a production-ready codebase in seconds.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org)
 
 ## Features
 
-- **Framework**: Next.js 15 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui
-- **Authentication**: Auth.js, Clerk, Lucia, Kinde (configurable)
-- **Database**: PostgreSQL, MySQL, SQLite, MongoDB (with Drizzle or Prisma)
-- **Forms**: React Hook Form + Zod
-- **Testing**: Jest + React Testing Library (optional)
-- **Linting**: ESLint + Prettier
+- **Full Stack Configuration** - Choose from 30+ integrations including auth, database, payments, state management, and more
+- **Theme Customization** - Customize radius, colors, fonts, and shadcn/ui components (like the shadcn themes page)
+- **Preset Templates** - Quick-start presets for SaaS, E-commerce, and Blog/CMS projects
+- **Live Preview** - Real-time file tree preview as you configure
+- **CLI Support** - Generate projects via `npx create-oriums-app` or download as ZIP
+- **Copyable Commands** - Copy installation commands directly from the UI
+- **Shareable Configs** - Share your configuration via URL
+
+## Supported Integrations
+
+| Category | Options |
+|----------|---------|
+| **Authentication** | Auth.js, NextAuth.js, Clerk, Supabase, Firebase, Better Auth |
+| **Database** | Prisma, Drizzle ORM, Mongoose, Firebase Firestore |
+| **API Layer** | tRPC, GraphQL |
+| **State Management** | Zustand, Redux Toolkit, Jotai |
+| **Payments** | Stripe, LemonSqueezy, Paddle, Dodo Payments, Polar |
+| **AI** | Vercel AI SDK |
+| **Monitoring** | Sentry, PostHog, LogRocket, Google Analytics, Vercel Analytics |
+| **i18n** | next-intl, react-i18next |
+| **SEO** | next-sitemap |
+| **Testing** | Vitest |
+| **DevOps** | Docker, Storybook |
 
 ## Quick Start
 
+### Using the CLI
+
+```bash
+npx create-oriums-app my-app
+```
+
+Or with a preset:
+
+```bash
+npx create-oriums-app my-app --preset saas
+```
+
+### Using the Web App
+
+Visit [nextjs-forge.oriums.dev](https://nextjs-forge.oriums.dev) to configure and download your boilerplate.
+
+## Development
+
 ### Prerequisites
 
-- Node.js 18+
-- pnpm (recommended) or npm/yarn/bun
+- Node.js 18.x or later
+- npm, yarn, pnpm, or bun
 
-### Installation
+### Setup
 
-1. Clone the repository:
+```bash
+# Clone the repository
+git clone https://github.com/Oriums/oriums-boilerplate.git
+cd oriums-boilerplate
 
-   ```bash
-   git clone https://github.com/mustaquenadim/oriums-boilerplate.git
-   cd oriums-boilerplate
-   ```
+# Install dependencies
+npm install
 
-2. Install dependencies:
+# Start development server
+npm run dev
+```
 
-   ```bash
-   pnpm install
-   ```
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-3. Run the development server:
+### Environment Variables (Optional)
 
-   ```bash
-   pnpm dev
-   ```
+Create a `.env.local` file for analytics:
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```
+NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
+```
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript 5
+- **Styling:** Tailwind CSS 4 + shadcn/ui
+- **Forms:** React Hook Form + Zod
+- **Analytics:** Plausible + PostHog
+- **Archiving:** Archiver (ZIP generation)
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details on how to get started.
-
-Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to get started.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Author
+## Acknowledgments
 
-**Mustaque Nadim**
-
-- GitHub: [@mustaquenadim](https://github.com/mustaquenadim)
+- [shadcn/ui](https://ui.shadcn.com) for the incredible component library
+- [Next.js](https://nextjs.org) for the amazing framework
+- [Tailwind CSS](https://tailwindcss.com) for the utility-first CSS framework

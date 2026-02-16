@@ -1,112 +1,126 @@
 # Contributing to Next.js Forge
 
-First off, thanks for taking the time to contribute! ❤️
+Thank you for your interest in contributing to Next.js Forge! This guide will help you get started.
 
-All types of contributions are encouraged and valued. See the [Table of Contents](#table-of-contents) for different ways to help and details about how this project handles them. Please make sure to read the relevant section before making your contribution. It will make it a lot easier for us maintainers and smooth out the experience for all involved. The community looks forward to your contributions.
+## Development Setup
 
-> And if you like the project, but just don't have time to contribute, that's fine. There are other easy ways to support the project and show your appreciation, which we would also be very happy about:
->
-> - Star the project
-> - Tweet about it
-> - Refer this project in your project's readme
-> - Mention the project at local meetups and tell your friends/colleagues
+### Prerequisites
 
-## Table of Contents
+- Node.js 18.x or later
+- npm, yarn, pnpm, or bun
 
-- [Code of Conduct](#code-of-conduct)
-- [I Have a Question](#i-have-a-question)
-- [I Want To Contribute](#i-want-to-contribute)
-  - [Reporting Bugs](#reporting-bugs)
-  - [Suggesting Enhancements](#suggesting-enhancements)
-  - [Your First Code Contribution](#your-first-code-contribution)
-  - [Improving The Documentation](#improving-the-documentation)
-- [Styleguides](#styleguides)
-  - [Commit Messages](#commit-messages)
+### Getting Started
 
-## Code of Conduct
+1. Fork the repository
+2. Clone your fork:
 
-This project and everyone participating in it is governed by the
-[Next.js Forge Code of Conduct](CODE_OF_CONDUCT.md).
-By participating, you are expected to uphold this code. Please report unacceptable behavior
-to the project maintainers.
+```bash
+git clone https://github.com/<your-username>/oriums-boilerplate.git
+cd oriums-boilerplate
+```
 
-## I Have a Question
+3. Install dependencies:
 
-> If you want to ask a question, we assume that you have read the available [Documentation](link-to-docs).
+```bash
+npm install
+```
 
-Before you ask a question, it is best to search for existing [Issues](https://github.com/mustaquenadim/oriums-boilerplate/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
+4. Create a `.env.local` file (optional, for analytics):
 
-## I Want To Contribute
+```
+NEXT_PUBLIC_POSTHOG_KEY=your_key
+NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
+```
+
+5. Start the development server:
+
+```bash
+npm run dev
+```
+
+6. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Project Structure
+
+```
+oriums-boilerplate/
+├── src/
+│   ├── app/                  # Next.js App Router pages
+│   ├── components/           # React components
+│   │   ├── ui/              # shadcn/ui components
+│   │   └── providers/       # Context providers
+│   ├── lib/                 # Utilities and helpers
+│   ├── hooks/               # Custom React hooks
+│   └── templates/           # Boilerplate template files
+├── cli/                     # CLI package (create-oriums-app)
+└── public/                  # Static assets
+```
+
+## How to Contribute
 
 ### Reporting Bugs
 
-#### Before Submitting a Bug Report
+- Use the [Bug Report](https://github.com/Oriums/oriums-boilerplate/issues/new?template=bug_report.md) issue template
+- Include steps to reproduce
+- Include expected vs actual behavior
+- Include screenshots if applicable
 
-A good bug report shouldn't leave others needing to chase you up for more information. Therefore, we ask you to investigate carefully, collect information and describe the issue in detail in your report. Please complete the following steps in advance to help us fix any potential bug as fast as possible.
+### Suggesting Features
 
-- Make sure that you are using the latest version.
-- Determine if your bug is really a bug and not an error on your side e.g. using incompatible environment components/versions (Make sure that you have read the [documentation](link-to-docs). If you are looking for support, you might want to check [this section](#i-have-a-question)).
-- To see if other users have experienced (and potentially already solved) the same issue you are having, check if there is not already a bug report existing for your bug or error in the [bug tracker](https://github.com/mustaquenadim/oriums-boilerplate/issues?q=label%3Abug).
-- Also make sure to search the internet (including Stack Overflow) to see if users outside of the GitHub community have discussed the issue.
-- Collect information about the bug:
-  - Stack trace (Traceback)
-  - OS, Platform and Version (Windows, Linux, macOS, x86, ARM)
-  - Version of the interpreter, compiler, SDK, runtime environment, package manager, depending on what seems relevant.
-  - Possibly your input and the output
-  - Can you reliably reproduce the issue? And can you also reproduce it with older versions?
+- Use the [Feature Request](https://github.com/Oriums/oriums-boilerplate/issues/new?template=feature_request.md) issue template
+- Describe the use case clearly
+- Explain why this feature would be useful
 
-#### How to Submit a Good Bug Report
+### Submitting Pull Requests
 
-We use GitHub issues to track bugs and errors. If you run into an issue with the project:
+1. Create a new branch from `master`:
 
-- Open an [Issue](https://github.com/mustaquenadim/oriums-boilerplate/issues/new). (Since we can't be sure at this point whether it is a bug or not, we ask you not to talk about a bug yet and not to label the issue.)
-- Explain the behavior you would expect and the actual behavior.
-- Please provide as much context as possible and describe the _reproduction steps_ that someone else can follow to recreate the issue on their own. This usually includes your code. For good bug reports you should isolate the problem and create a reduced test case.
-- Provide the information you collected in the previous section.
+```bash
+git checkout -b feature/your-feature-name
+```
 
-Once it's filed:
+2. Make your changes following the coding guidelines below
+3. Test your changes locally
+4. Commit with clear, descriptive messages:
 
-- The project team will label the issue accordingly.
-- A team member will try to reproduce the issue with your provided steps. If there are no reproduction steps or no obvious way to reproduce the issue, the team will ask you for those steps and mark the issue as `needs-repro`. Bugs with the `needs-repro` tag will not be addressed until they are reproduced.
-- If the team is able to reproduce the issue, it will be marked `needs-fix`, as well as possibly other tags (such as `critical`), and the issue will be left to be [implemented by someone](#your-first-code-contribution).
+```bash
+git commit -m "feat: add new auth provider template"
+```
 
-### Suggesting Enhancements
+5. Push to your fork and open a PR against `master`
 
-This section guides you through submitting an enhancement suggestion for Next.js Forge, **including completely new features and minor improvements to existing functionality**. Following these guidelines will help maintainers and the community to understand your suggestion and find related suggestions.
+### Commit Message Convention
 
-#### Before Submitting an Enhancement
+We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
-- Make sure that you are using the latest version.
-- Read the [documentation](link-to-docs) carefully and find out if the functionality is already covered, maybe by an individual configuration.
-- Perform a [search](https://github.com/mustaquenadim/oriums-boilerplate/issues) to see if the enhancement has already been suggested. If it has, add a comment to the existing issue instead of opening a new one.
-- Find out whether your idea fits with the scope and aims of the project. It's up to you to make a strong case to convince the project's developers of the merits of this feature. Keep in mind that we want features that will be useful to the majority of our users and not just a small subset. If you're just targeting a minority of users, consider writing an add-on/plugin library.
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, semicolons, etc.)
+- `refactor:` - Code refactoring
+- `test:` - Adding or updating tests
+- `chore:` - Maintenance tasks
 
-#### How to Submit a Good Enhancement Suggestion
+## Coding Guidelines
 
-Enhancement suggestions are tracked as [GitHub issues](https://github.com/mustaquenadim/oriums-boilerplate/issues).
+- Use TypeScript for all new code
+- Follow the existing code style (Prettier + ESLint)
+- Use shadcn/ui components for UI elements
+- Keep components small and focused
+- Add proper TypeScript types (avoid `any`)
+- Use meaningful variable and function names
 
-- Use a **clear and descriptive title** for the issue to identify the suggestion.
-- Provide a **step-by-step description of the suggested enhancement** in as many details as possible.
-- **Describe the current behavior** and **explain which behavior you expected to see instead** and why. At this point you can also tell which alternatives you do not work for you.
-- You may want to include **screenshots and animated GIFs** which help you demonstrate the steps or point out the part which the suggestion is related to.
-- **Explain why this enhancement would be useful** to most Next.js Forge users. You may also want to point out the other projects that solved it better and which could serve as inspiration.
+## Adding New Templates
 
-### Your First Code Contribution
+Templates live in `src/templates/`. To add a new integration:
 
-1. Fork the project
-2. Clone your fork: `git clone https://github.com/your-username/oriums-boilerplate.git`
-3. Install dependencies: `pnpm install`
-4. Run development server: `pnpm dev`
-5. Create a branch: `git checkout -b feature/amazing-feature`
-6. Commit your changes: `git commit -m 'Add some amazing feature'`
-7. Push to the branch: `git push origin feature/amazing-feature`
-8. Open a Pull Request
+1. Create template files in the appropriate `extras/` subdirectory
+2. Update the form schema in `src/components/generator-form.tsx`
+3. Add generation logic in `src/app/api/generate/route.ts`
+4. Update the tree preview in `src/lib/generate-tree-data.ts`
+5. Add relevant dependencies to the generated `package.json`
 
-## Styleguides
+## Questions?
 
-### Commit Messages
-
-- Use current tense ("Add feature" not "Added feature")
-- Use the imperative mood ("Move cursor to..." not "Moves cursor to...")
-- Limit the first line to 72 characters or less
-- Reference issues and pull requests liberally after the first line
+Feel free to open an issue or start a discussion if you have questions about contributing.

@@ -1,40 +1,40 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
+name: Bug Report
+about: Report a bug to help us improve
+title: "[Bug]: "
 labels: bug
-assignees: ''
+assignees: ""
 ---
 
-**Describe the bug**
+## Describe the Bug
+
 A clear and concise description of what the bug is.
 
-**To Reproduce**
-Steps to reproduce the behavior:
+## Steps to Reproduce
 
 1. Go to '...'
 2. Click on '...'
-3. Scroll down to '...'
+3. Select '...'
 4. See error
 
-**Expected behavior**
+## Expected Behavior
+
 A clear and concise description of what you expected to happen.
 
-**Screenshots**
+## Actual Behavior
+
+What actually happened instead.
+
+## Screenshots
+
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
+## Environment
 
-- OS: [e.g. iOS]
-- Browser [e.g. chrome, safari]
-- Version [e.g. 22]
+- OS: [e.g. Windows 11, macOS 14]
+- Browser: [e.g. Chrome 120, Firefox 121]
+- Node.js version: [e.g. 20.x]
 
-**Smartphone (please complete the following information):**
+## Additional Context
 
-- Device: [e.g. iPhone6]
-- OS: [e.g. iOS8.1]
-- Browser [e.g. stock browser, safari]
-- Version [e.g. 22]
-
-**Additional context**
 Add any other context about the problem here.
