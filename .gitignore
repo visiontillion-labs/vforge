@@ -44,3 +44,9 @@ next-env.d.ts
 # CLI package
 cli/node_modules
 cli/dist
+
+# Start of user custom
+.idea/
+.vscode/
+*.swp
+Thumbs.db

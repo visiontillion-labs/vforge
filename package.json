@@ -1,14 +1,17 @@
 {
-  "name": "nextjs-forge",
-  "version": "1.0.0",
-  "description": "The ultimate comprehensive boilerplate generator for Next.js projects",
-  "author": "Oriums",
-  "license": "MIT",
+  "name": "boilerplate",
+  "version": "0.1.0",
+  "description": "The ultimate comprehensive boilerplate generator for your new Next.js projects.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Oriums/oriums-boilerplate.git"
+    "url": "git+https://github.com/mustaquenadim/oriums-boilerplate.git"
   },
-  "homepage": "https://nextjs-forge.oriums.dev",
+  "author": "Mustaque Nadim",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mustaquenadim/oriums-boilerplate/issues"
+  },
+  "homepage": "https://github.com/mustaquenadim/oriums-boilerplate#readme",
   "keywords": [
     "nextjs",
     "boilerplate",
