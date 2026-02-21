@@ -21,7 +21,7 @@ program
   .option('-y, --yes', 'Skip prompts and use defaults')
   .action(async (projectName: string | undefined, options) => {
     console.log('');
-    console.log(chalk.bold.cyan('  Next.js Forge'));
+    console.log(chalk.bold.cyan('  Oriums'));
     console.log(chalk.dim('  The ultimate boilerplate generator for Next.js'));
     console.log('');
 

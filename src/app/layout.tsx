@@ -5,6 +5,7 @@ import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
 import { PostHogProvider } from '@/components/providers/posthog-provider';
+import { ThemeProvider } from 'next-themes';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,9 +18,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Next.js Forge - Boilerplate Generator',
+  title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
   description:
-    'The ultimate comprehensive boilerplate generator for your new Next.js projects.',
+    'The most comprehensive boilerplate generator for Next.js. Configure auth, database, payments, AI, and more — then generate production-ready code.',
+  openGraph: {
+    title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
+    description:
+      'Configure auth, database, payments, AI, and more — then generate production-ready Next.js code.',
+    siteName: 'Oriums',
+  },
 };
 
 export default function RootLayout({
@@ -30,7 +37,7 @@ export default function RootLayout({
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
 
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <head>
         {plausibleDomain && (
           <Script
@@ -44,12 +51,19 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PostHogProvider>
-          <TooltipProvider>
-            {children}
-            <Toaster position='bottom-right' richColors />
-          </TooltipProvider>
-        </PostHogProvider>
+        <ThemeProvider
+          attribute='class'
+          defaultTheme='system'
+          enableSystem
+          disableTransitionOnChange
+        >
+          <PostHogProvider>
+            <TooltipProvider>
+              {children}
+              <Toaster position='bottom-right' richColors />
+            </TooltipProvider>
+          </PostHogProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

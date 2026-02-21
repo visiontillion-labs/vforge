@@ -1,6 +1,6 @@
-# Next.js Forge
+# Oriums
 
-The ultimate comprehensive boilerplate generator for Next.js projects. Configure your stack, customize your theme, and generate production-ready projects in seconds.
+The most comprehensive boilerplate generator for Next.js. Configure your stack, customize your theme, and generate production-ready projects in seconds.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org)
@@ -48,7 +48,7 @@ npx create-oriums-app my-app --preset saas
 
 ### Using the Web App
 
-Visit [nextjs-forge.oriums.dev](https://nextjs-forge.oriums.dev) to configure and download your boilerplate.
+Visit [oriums.dev](https://oriums.dev) to configure and download your boilerplate.
 
 ## Development
 
@@ -61,7 +61,7 @@ Visit [nextjs-forge.oriums.dev](https://nextjs-forge.oriums.dev) to configure an
 
 ```bash
 # Clone the repository
-git clone https://github.com/Oriums/oriums-boilerplate.git
+git clone https://github.com/mustaquenadim/oriums-boilerplate.git
 cd oriums-boilerplate
 
 # Install dependencies

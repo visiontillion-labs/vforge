@@ -19,6 +19,7 @@ import {
 } from '@/lib/color-presets';
 import { analytics } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 interface ThemeState {
   radius: RadiusValue;
@@ -32,40 +33,39 @@ const defaultTheme: ThemeState = {
   primaryColor: 'default',
 };
 
-function applyThemeToDOM(theme: ThemeState) {
+function applyThemeToDOM(theme: ThemeState, isDark: boolean) {
   const root = document.documentElement;
+  const mode = isDark ? 'dark' : 'light';
 
-  // Apply radius
   root.style.setProperty('--radius', `${theme.radius}rem`);
 
-  // Apply base color (light mode)
   const base = baseColorPresets.find((b) => b.id === theme.baseColor);
   if (base) {
-    for (const [key, value] of Object.entries(base.light)) {
+    for (const [key, value] of Object.entries(base[mode])) {
       root.style.setProperty(key, value);
     }
   }
 
-  // Apply primary color overrides
   const primary = primaryColorPresets.find((p) => p.id === theme.primaryColor);
   if (primary && primary.id !== 'default') {
-    for (const [key, value] of Object.entries(primary.light)) {
+    for (const [key, value] of Object.entries(primary[mode])) {
       root.style.setProperty(key, value);
     }
   } else if (primary?.id === 'default' && base) {
-    // Restore base primary colors
-    root.style.setProperty('--primary', base.light['--primary']);
-    root.style.setProperty('--primary-foreground', base.light['--primary-foreground']);
-    root.style.setProperty('--ring', base.light['--ring']);
+    root.style.setProperty('--primary', base[mode]['--primary']);
+    root.style.setProperty('--primary-foreground', base[mode]['--primary-foreground']);
+    root.style.setProperty('--ring', base[mode]['--ring']);
   }
 }
 
 export function ThemeCustomizer() {
   const [theme, setTheme] = useState<ThemeState>(defaultTheme);
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   useEffect(() => {
-    applyThemeToDOM(theme);
-  }, [theme]);
+    applyThemeToDOM(theme, isDark);
+  }, [theme, isDark]);
 
   const updateTheme = useCallback(
     (key: keyof ThemeState, value: ThemeState[keyof ThemeState]) => {

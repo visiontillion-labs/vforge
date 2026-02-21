@@ -1,6 +1,6 @@
-# Contributing to Next.js Forge
+# Contributing to Oriums
 
-Thank you for your interest in contributing to Next.js Forge! This guide will help you get started.
+Thank you for your interest in contributing to Oriums! This guide will help you get started.
 
 ## Development Setup
 

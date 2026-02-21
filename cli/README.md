@@ -1,6 +1,6 @@
 # create-oriums-app
 
-The CLI companion for [Next.js Forge](https://nextjs-forge.oriums.dev) - generate production-ready Next.js boilerplate projects from your terminal.
+The CLI companion for [Oriums](https://oriums.dev) - generate production-ready Next.js boilerplate projects from your terminal.
 
 ## Usage
 

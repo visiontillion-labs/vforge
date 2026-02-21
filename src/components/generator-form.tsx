@@ -479,7 +479,7 @@ export function GeneratorForm() {
         <CardHeader>
           <div className='flex items-start justify-between gap-4'>
             <div>
-              <CardTitle>Configure Your Next.js Application</CardTitle>
+              <CardTitle>Configure Your Project</CardTitle>
               <CardDescription>
                 Select from a wide range of features to boost your development.
               </CardDescription>
@@ -1416,21 +1416,33 @@ export function GeneratorForm() {
                   />
                 </TabsContent>
 
-                <TabsContent value='manual' className='space-y-3 mt-4'>
+                <TabsContent value='manual' className='space-y-4 mt-4'>
                   <p className='text-sm text-muted-foreground'>
                     Follow these steps to set up your project manually:
                   </p>
                   {generateCommands(watchedValues).manual.map((step, idx) => (
                     <div key={idx} className='space-y-1'>
-                      <p className='text-xs font-semibold text-muted-foreground'>
-                        {step.label}
-                      </p>
-                      <CommandBlock
-                        commands={step.command}
-                        onCopy={() =>
-                          analytics.trackCommandCopied(`manual-${step.label}`)
-                        }
-                      />
+                      <div className='flex items-center gap-2'>
+                        <span className='flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary'>
+                          {idx + 1}
+                        </span>
+                        <p className='text-xs font-semibold text-foreground'>
+                          {step.label}
+                        </p>
+                      </div>
+                      {step.description && (
+                        <p className='ml-7 text-xs text-muted-foreground'>
+                          {step.description}
+                        </p>
+                      )}
+                      <div className='ml-7'>
+                        <CommandBlock
+                          commands={step.command}
+                          onCopy={() =>
+                            analytics.trackCommandCopied(`manual-${step.label}`)
+                          }
+                        />
+                      </div>
                     </div>
                   ))}
                 </TabsContent>
