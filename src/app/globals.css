@@ -179,15 +179,15 @@
 /* ── Grid pattern background ──────────────────────────────────── */
 .grid-pattern {
   background-image:
-    linear-gradient(to right, oklch(0.9 0 0 / 40%) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.9 0 0 / 40%) 1px, transparent 1px);
+    linear-gradient(to right, oklch(0.9 0.01 250 / 50%) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.9 0.01 250 / 50%) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .dark .grid-pattern {
   background-image:
-    linear-gradient(to right, oklch(0.25 0 0 / 30%) 1px, transparent 1px),
-    linear-gradient(to bottom, oklch(0.25 0 0 / 30%) 1px, transparent 1px);
+    linear-gradient(to right, oklch(0.35 0.01 250 / 50%) 1px, transparent 1px),
+    linear-gradient(to bottom, oklch(0.35 0.01 250 / 50%) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 

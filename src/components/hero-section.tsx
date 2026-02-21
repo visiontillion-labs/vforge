@@ -24,7 +24,6 @@ export function HeroSection() {
     <section className='relative overflow-hidden'>
       {/* Background layer */}
       <div className='pointer-events-none absolute inset-0 -z-10'>
-        <div className='absolute inset-0 grid-pattern opacity-60' />
         <div className='animate-blob-1 absolute -top-40 left-[15%] h-[600px] w-[600px] rounded-full bg-foreground/3 blur-[100px]' />
         <div className='animate-blob-2 absolute -top-20 right-[15%] h-[500px] w-[500px] rounded-full bg-foreground/3 blur-[100px]' />
         <div className='animate-blob-3 absolute top-40 left-[40%] h-[400px] w-[400px] rounded-full bg-foreground/3 blur-[100px]' />

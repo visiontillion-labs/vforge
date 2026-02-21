@@ -9,6 +9,7 @@ export default function Home() {
     <div className='min-h-screen bg-background flex flex-col'>
       <Navbar />
       <main className='grow relative'>
+        <div className='pointer-events-none absolute inset-0 grid-pattern opacity-60 z-0' />
         <HeroSection />
         <FeaturesSection />
         <CTASection />
