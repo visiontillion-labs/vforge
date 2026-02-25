@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
     const themeRadius = theme?.radius ?? 0.5;
     const themeBaseColor = theme?.baseColor ?? 'neutral';
     const themePrimaryColor = theme?.primaryColor ?? 'default';
-    const _themeFont: string = theme?.font ?? 'geist';
     const themeComponents: string[] = theme?.components ?? [
       'button',
       'card',

@@ -176,12 +176,12 @@ export function HeroSection() {
         {/* Social proof */}
         <div className='animate-fade-in-up delay-500 mt-12 flex items-center justify-center gap-4'>
           <div className='flex -space-x-2'>
-            {[1, 2, 3, 4, 5].map((i) => (
+            {['A', 'B', 'C', 'D', 'E'].map((label) => (
               <div
-                key={i}
+                key={label}
                 className='inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-background bg-muted text-xs font-bold text-muted-foreground'
               >
-                {String.fromCharCode(64 + i)}
+                {label}
               </div>
             ))}
           </div>
