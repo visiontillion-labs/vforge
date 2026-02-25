@@ -84,7 +84,7 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   const deps: string[] = [];
 
   const authDeps: Record<string, string[]> = {
-    authjs: ['next-auth@beta', '@auth/core'],
+    authjs: ['next-auth'],
     'next-auth': ['next-auth'],
     clerk: ['@clerk/nextjs'],
     supabase: ['@supabase/supabase-js', '@supabase/ssr'],
@@ -107,15 +107,9 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   }
 
   if (values.api === 'trpc') {
-    deps.push(
-      '@trpc/server',
-      '@trpc/client',
-      '@trpc/react-query',
-      '@tanstack/react-query',
-      'superjson',
-    );
+    deps.push('@trpc/server', 'superjson', 'zod');
   } else if (values.api === 'graphql') {
-    deps.push('@apollo/server', '@apollo/client', 'graphql');
+    deps.push('graphql', 'graphql-yoga');
   }
 
   const stateDeps: Record<string, string[]> = {
@@ -645,23 +639,28 @@ TRPCAEOF`,
       command:
         platformAwareMkdir(`${srcPrefix}app/api/graphql`) +
         ` && cat > ${srcPrefix}app/api/graphql/route.${values.language === 'ts' ? 'ts' : 'js'} << 'GQLEOF'
-import { ApolloServer } from "@apollo/server"
-import { startServerAndCreateNextHandler } from "@as-integrations/next"
+import { createYoga, createSchema } from "graphql-yoga"
 
-const typeDefs = \`
+const schema = createSchema({
+  typeDefs: \`
   type Query {
     hello: String
   }
-\`
-
-const resolvers = {
-  Query: {
-    hello: () => "Hello from GraphQL!",
+\`,
+  resolvers: {
+    Query: {
+      hello: () => "Hello from GraphQL!",
+    },
   },
-}
+})
 
-const server = new ApolloServer({ typeDefs, resolvers })
-const handler = startServerAndCreateNextHandler(server)
+const yoga = createYoga({
+  schema,
+  graphqlEndpoint: "/api/graphql",
+  fetchAPI: { Response },
+})
+
+const handler = (req: Request) => yoga.handleRequest(req)
 
 export { handler as GET, handler as POST }
 GQLEOF`,
