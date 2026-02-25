@@ -1,13 +1,13 @@
 # CLI Setup & Publishing Guide
 
-Complete guide to build, test, and publish `create-oriums-app` so users can run `npx create-oriums-app my-app`.
+Complete guide to build, test, and publish `create-forge-app` so users can run `npx create-forge-app my-app`.
 
 ---
 
 ## How It Works
 
 ```
-User runs: npx create-oriums-app my-app
+User runs: npx create-forge-app my-app
                     │
                     ▼
         cli/src/index.ts (commander)
@@ -19,8 +19,8 @@ User runs: npx create-oriums-app my-app
                     ▼
         cli/src/generator.ts
            │
-           ├── POST config JSON to https://oriums.dev/api/generate
-           │         (or ORIUMS_API_URL env var if set)
+           ├── POST config JSON to https://forge.visiontillion.com/api/generate
+           │         (or FORGE_API_URL env var if set)
            │
            ▼
         Next.js API route (src/app/api/generate/route.ts)
@@ -50,16 +50,16 @@ User runs: npx create-oriums-app my-app
 The CLI calls your API at the URL defined in `cli/src/generator.ts`:
 
 ```ts
-const API_URL = process.env.ORIUMS_API_URL || 'https://oriums.dev';
+const API_URL = process.env.FORGE_API_URL || 'https://forge.visiontillion.com';
 ```
 
 ### Option A: Deploy to Vercel (Recommended)
 
-1. Push your repo to GitHub: `https://github.com/mustaquenadim/oriums-boilerplate`
+1. Push your repo to GitHub: `https://github.com/visiontillion-labs/forge`
 2. Go to [vercel.com/new](https://vercel.com/new) and import your repo
 3. Deploy — Vercel will auto-detect Next.js
 4. Once deployed, your API is live at `https://your-domain.vercel.app/api/generate`
-5. (Optional) Add a custom domain like `oriums.dev` in Vercel dashboard → Settings → Domains
+5. (Optional) Add a custom domain like `forge.visiontillion.com` in Vercel dashboard → Settings → Domains
 
 ### Option B: Any Other Host
 
@@ -80,10 +80,10 @@ If `test.zip` downloads successfully, the API is working.
 
 ## Step 2: Update the API URL (if needed)
 
-If your deployed domain is not `oriums.dev`, update the default in `cli/src/generator.ts`:
+If your deployed domain is not `forge.visiontillion.com`, update the default in `cli/src/generator.ts`:
 
 ```ts
-const API_URL = process.env.ORIUMS_API_URL || 'https://your-actual-domain.com';
+const API_URL = process.env.FORGE_API_URL || 'https://your-actual-domain.com';
 ```
 
 ---
@@ -119,7 +119,7 @@ npm link
 Now from **any directory**:
 
 ```bash
-create-oriums-app my-test-app
+create-forge-app my-test-app
 ```
 
 ### 4c. Test against your local dev server
@@ -136,41 +136,41 @@ Then in another terminal:
 **macOS / Linux:**
 
 ```bash
-ORIUMS_API_URL=http://localhost:3000 create-oriums-app my-test-app
+FORGE_API_URL=http://localhost:3000 create-forge-app my-test-app
 ```
 
 **Windows PowerShell:**
 
 ```powershell
-$env:ORIUMS_API_URL="http://localhost:3000"; create-oriums-app my-test-app
+$env:FORGE_API_URL="http://localhost:3000"; create-forge-app my-test-app
 ```
 
 **Windows CMD:**
 
 ```cmd
-set ORIUMS_API_URL=http://localhost:3000 && create-oriums-app my-test-app
+set FORGE_API_URL=http://localhost:3000 && create-forge-app my-test-app
 ```
 
 ### 4d. Test all modes
 
 ```bash
 # Interactive mode (prompts for everything)
-create-oriums-app
+create-forge-app
 
 # With a preset
-create-oriums-app my-saas --preset saas
+create-forge-app my-saas --preset saas
 
 # Skip prompts, use defaults
-create-oriums-app my-app -y
+create-forge-app my-app -y
 
 # Specific flags
-create-oriums-app my-app --auth clerk --database prisma
+create-forge-app my-app --auth clerk --database prisma
 
 # JavaScript instead of TypeScript
-create-oriums-app my-app --javascript
+create-forge-app my-app --javascript
 
 # Pages Router
-create-oriums-app my-app --router pages
+create-forge-app my-app --router pages
 ```
 
 ### 4e. Unlink after testing
@@ -186,13 +186,13 @@ npm unlink -g
 
 ### 5a. Check package name availability
 
-Visit: https://www.npmjs.com/package/create-oriums-app
+Visit: https://www.npmjs.com/package/create-forge-app
 
 If the name is taken, change it in `cli/package.json`:
 
 ```json
 {
-  "name": "create-oriums-app"
+   "name": "create-forge-app"
 }
 ```
 
@@ -215,7 +215,7 @@ The `prepublishOnly` script automatically runs `npm run build` before publishing
 
 ```bash
 # From any machine / directory
-npx create-oriums-app my-app
+npx create-forge-app my-app
 ```
 
 ---
@@ -259,11 +259,11 @@ npm publish
 - [ ] `API_URL` in `generator.ts` points to deployed domain
 - [ ] `src/templates/` directory exists with all template files on the server
 - [ ] CLI builds without errors (`npm run build` in `cli/`)
-- [ ] Local testing works (`npm link` → `create-oriums-app my-app`)
+- [ ] Local testing works (`npm link` → `create-forge-app my-app`)
 - [ ] npm account created and logged in (`npm login`)
-- [ ] Package name `create-oriums-app` is available on npm
+- [ ] Package name `create-forge-app` is available on npm
 - [ ] Published to npm (`npm publish`)
-- [ ] `npx create-oriums-app my-app` works from a clean machine
+- [ ] `npx create-forge-app my-app` works from a clean machine
 
 ---
 
@@ -275,7 +275,7 @@ The CLI can't reach your `/api/generate` endpoint. Check:
 
 - Is the Next.js app deployed and running?
 - Is the URL correct in `generator.ts`?
-- Try setting the env var: `ORIUMS_API_URL=https://your-url.com`
+- Try setting the env var: `FORGE_API_URL=https://your-url.com`
 
 ### "API responded with status 500"
 
@@ -302,7 +302,7 @@ The target folder already has files. Either delete it or choose a different proj
 ### npm publish fails with 403
 
 - Make sure you're logged in: `npm whoami`
-- The package name might be taken — try a scoped name: `@mustaquenadim/create-oriums-app`
+- The package name might be taken — try a scoped name: `@visiontillion-labs/create-forge-app`
 - If scoped, publish with: `npm publish --access public`
 
 ---
@@ -318,7 +318,7 @@ npm run build            # One-time build
 
 # ── Local Testing ────────────────────────
 npm link                 # Link globally
-create-oriums-app my-app # Test the CLI
+create-forge-app my-app # Test the CLI
 npm unlink -g            # Remove global link
 
 # ── Publishing ───────────────────────────
@@ -328,6 +328,6 @@ npm version patch        # Bump version 1.0.0 → 1.0.1
 npm version minor        # Bump version 1.0.0 → 1.1.0
 
 # ── Debugging ────────────────────────────
-ORIUMS_API_URL=http://localhost:3000 create-oriums-app test  # Test against local
+FORGE_API_URL=http://localhost:3000 create-forge-app test  # Test against local
 node dist/index.js test --yes                                # Quick test with defaults
 ```

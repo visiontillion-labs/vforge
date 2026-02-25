@@ -11,7 +11,7 @@ export function HeroSection() {
 
   const copyCommand = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText('npx create-oriums-app my-app');
+      await navigator.clipboard.writeText('npx create-forge-app my-app');
       setCopied(true);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
@@ -61,7 +61,7 @@ export function HeroSection() {
               className='group flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 px-5 py-3 font-mono text-sm shadow-sm backdrop-blur-sm transition-all hover:border-border hover:bg-muted/50 hover:shadow-md'
             >
               <span className='text-muted-foreground/60'>$</span>
-              <span>npx create-oriums-app my-app</span>
+              <span>npx create-forge-app my-app</span>
               {copied ? (
                 <Check className='h-4 w-4 text-foreground' />
               ) : (
@@ -79,11 +79,15 @@ export function HeroSection() {
               </Button>
             </Link>
             <a
-              href='https://github.com/mustaquenadim/oriums-boilerplate'
+              href='https://github.com/visiontillion-labs/forge'
               target='_blank'
               rel='noopener noreferrer'
             >
-              <Button variant='outline' size='lg' className='gap-2 px-6 h-12 text-base'>
+              <Button
+                variant='outline'
+                size='lg'
+                className='gap-2 px-6 h-12 text-base'
+              >
                 Star on GitHub
               </Button>
             </a>
@@ -112,9 +116,10 @@ export function HeroSection() {
             <div className='p-5 font-mono text-[13px] leading-7'>
               <p>
                 <span className='text-muted-foreground'>export const</span>{' '}
-                <span className='text-foreground'>config</span>{' '}
-                ={' '}
-                <span className='text-foreground font-semibold'>createOriums</span>
+                <span className='text-foreground'>config</span> ={' '}
+                <span className='text-foreground font-semibold'>
+                  createForge
+                </span>
                 ({'{'}
               </p>
               <p className='pl-6'>
@@ -123,22 +128,32 @@ export function HeroSection() {
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>auth</span>:{' '}
-                <span className='text-muted-foreground'>&quot;better-auth&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;better-auth&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>database</span>:{' '}
-                <span className='text-muted-foreground'>&quot;prisma&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;prisma&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>payment</span>:{' '}
-                <span className='text-muted-foreground'>&quot;stripe&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;stripe&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>plugins</span>: [
               </p>
               <p className='pl-12'>
-                  <span className='text-foreground font-semibold'>shadcnUI</span>(),{' '}
-                  <span className='text-foreground font-semibold'>seo</span>(),
+                <span className='text-foreground font-semibold'>shadcnUI</span>
+                (), <span className='text-foreground font-semibold'>seo</span>
+                (),
               </p>
               <p className='pl-6'>]</p>
               <p>{'}'});</p>

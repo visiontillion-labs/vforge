@@ -1,12 +1,11 @@
 {
-  "name": "create-oriums-app",
+  "name": "create-forge-app",
   "version": "1.0.0",
   "description": "CLI to generate production-ready Next.js boilerplate projects",
-  "author": "Oriums",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mustaquenadim/oriums-boilerplate.git",
+    "url": "https://github.com/visiontillion-labs/forge.git",
     "directory": "cli"
   },
   "keywords": [
@@ -19,7 +18,7 @@
     "create-app"
   ],
   "bin": {
-    "create-oriums-app": "./dist/index.js"
+    "create-forge-app": "./dist/index.js"
   },
   "files": [
     "dist",

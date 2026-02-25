@@ -4,7 +4,7 @@ import { Navbar } from '@/components/navbar';
 import { FooterSection } from '@/components/footer-section';
 
 export const metadata = {
-  title: 'Generator — Oriums',
+  title: 'Generator — Forge',
   description:
     'Configure your Next.js boilerplate with auth, database, payments, AI and more. Generate production-ready code in seconds.',
 };

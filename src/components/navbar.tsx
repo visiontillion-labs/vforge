@@ -22,9 +22,9 @@ export function Navbar() {
         <div className='flex items-center gap-3'>
           <Link href='/' className='flex items-center gap-2.5'>
             <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-foreground'>
-              <span className='text-sm font-bold text-background'>O</span>
+              <span className='text-sm font-bold text-background'>F</span>
             </div>
-            <span className='text-lg font-bold tracking-tight'>ORIUMS.</span>
+            <span className='text-lg font-bold tracking-tight'>FORGE.</span>
           </Link>
         </div>
 
@@ -44,7 +44,7 @@ export function Navbar() {
               Generator
             </Link>
             <a
-              href='https://github.com/mustaquenadim/oriums-boilerplate'
+              href='https://github.com/visiontillion-labs/forge'
               target='_blank'
               rel='noopener noreferrer'
               className='text-sm font-medium text-muted-foreground transition-colors hover:text-foreground'
@@ -57,7 +57,7 @@ export function Navbar() {
 
           <div className='flex items-center gap-2'>
             <a
-              href='https://github.com/mustaquenadim/oriums-boilerplate'
+              href='https://github.com/visiontillion-labs/forge'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -142,7 +142,7 @@ export function Navbar() {
             Generator
           </Link>
           <a
-            href='https://github.com/mustaquenadim/oriums-boilerplate'
+            href='https://github.com/visiontillion-labs/forge'
             target='_blank'
             rel='noopener noreferrer'
             className='block text-sm font-medium text-muted-foreground hover:text-foreground'
