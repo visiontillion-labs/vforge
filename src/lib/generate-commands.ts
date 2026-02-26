@@ -51,9 +51,10 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.router !== 'app') cliFlags.push(`--router ${values.router}`);
   if (values.language !== 'ts') cliFlags.push('--javascript');
   if (values.auth !== 'none') cliFlags.push(`--auth ${values.auth}`);
-  if (values.database !== 'none') cliFlags.push(`--database ${values.database}`);
+  if (values.database !== 'none')
+    cliFlags.push(`--database ${values.database}`);
 
-  const cliCommand = `npx create-oriums-app ${values.projectName}${cliFlags.length ? ' ' + cliFlags.join(' ') : ''}`;
+  const cliCommand = `npx create-forge-app ${values.projectName}${cliFlags.length ? ' ' + cliFlags.join(' ') : ''}`;
 
   // ── Manual steps ────────────────────────────────────────────────
   const steps: ManualStep[] = [];
@@ -106,7 +107,13 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   }
 
   if (values.api === 'trpc') {
-    deps.push('@trpc/server', '@trpc/client', '@trpc/react-query', '@tanstack/react-query', 'superjson');
+    deps.push(
+      '@trpc/server',
+      '@trpc/client',
+      '@trpc/react-query',
+      '@tanstack/react-query',
+      'superjson',
+    );
   } else if (values.api === 'graphql') {
     deps.push('@apollo/server', '@apollo/client', 'graphql');
   }
@@ -166,9 +173,17 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   // ━━ 4. Dev dependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   const devDeps: string[] = [];
   if (values.database === 'prisma') devDeps.push('prisma');
-  if (values.testing) devDeps.push('vitest', '@vitejs/plugin-react', '@testing-library/react', '@testing-library/jest-dom', 'jsdom');
+  if (values.testing)
+    devDeps.push(
+      'vitest',
+      '@vitejs/plugin-react',
+      '@testing-library/react',
+      '@testing-library/jest-dom',
+      'jsdom',
+    );
   if (values.linter === 'biome') devDeps.push('@biomejs/biome');
-  if (values.features.reactCompiler) devDeps.push('babel-plugin-react-compiler');
+  if (values.features.reactCompiler)
+    devDeps.push('babel-plugin-react-compiler');
 
   if (devDeps.length > 0) {
     steps.push({
@@ -181,7 +196,8 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.features.git) {
     steps.push({
       label: 'Initialize Git repository',
-      command: 'git init && git add -A && git commit -m "Initial commit from Oriums"',
+      command:
+        'git init && git add -A && git commit -m "Initial commit from Forge"',
     });
   }
 
@@ -219,7 +235,8 @@ export function generateCommands(values: FormValues): GeneratedCommands {
 
     steps.push({
       label: 'Create Prisma client helper',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/prisma.${values.language === 'ts' ? 'ts' : 'js'} << 'PRISMAEOF'
 import { PrismaClient } from "@prisma/client"
 
@@ -256,7 +273,8 @@ DRIZZLEEOF`,
 
     steps.push({
       label: 'Create Drizzle schema',
-      command: platformAwareMkdir(`${srcPrefix}lib/db`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib/db`) +
         ` && cat > ${srcPrefix}lib/db/schema.${values.language === 'ts' ? 'ts' : 'js'} << 'SCHEMAEOF'
 import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core"
 
@@ -291,7 +309,8 @@ CLIENTEOF`,
 
     steps.push({
       label: 'Create MongoDB connection helper',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/mongodb.${values.language === 'ts' ? 'ts' : 'js'} << 'MONGOEOF'
 import mongoose from "mongoose"
 
@@ -338,7 +357,8 @@ AUTHEOF`,
 
     steps.push({
       label: 'Create Auth.js API route',
-      command: platformAwareMkdir(`${srcPrefix}app/api/auth/[...nextauth]`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/auth/[...nextauth]`) +
         ` && cat > ${srcPrefix}app/api/auth/[...nextauth]/route.${values.language === 'ts' ? 'ts' : 'js'} << 'ROUTEEOF'
 import { handlers } from "${values.importAlias.replace('*', '')}auth"
 export const { GET, POST } = handlers
@@ -360,7 +380,8 @@ MIDDLEWAREEOF`,
 
     steps.push({
       label: 'Create NextAuth config',
-      command: platformAwareMkdir(`${srcPrefix}app/api/auth/[...nextauth]`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/auth/[...nextauth]`) +
         ` && cat > ${srcPrefix}app/api/auth/[...nextauth]/route.${values.language === 'ts' ? 'ts' : 'js'} << 'NAEOF'
 import NextAuth from "next-auth"
 import GitHubProvider from "next-auth/providers/github"
@@ -401,7 +422,8 @@ CLERKEOF`,
 
     steps.push({
       label: 'Wrap layout with ClerkProvider',
-      description: 'Add <ClerkProvider> around {children} in your root layout.tsx',
+      description:
+        'Add <ClerkProvider> around {children} in your root layout.tsx',
       command: `echo "Wrap your root layout with <ClerkProvider> from '@clerk/nextjs'"`,
     });
   } else if (values.auth === 'supabase') {
@@ -409,7 +431,8 @@ CLERKEOF`,
 
     steps.push({
       label: 'Create Supabase client utilities',
-      command: platformAwareMkdir(`${srcPrefix}lib/supabase`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib/supabase`) +
         ` && cat > ${srcPrefix}lib/supabase/client.${values.language === 'ts' ? 'ts' : 'js'} << 'SUPACEOF'
 import { createBrowserClient } from "@supabase/ssr"
 
@@ -488,7 +511,8 @@ SUPAMEOF`,
 
     steps.push({
       label: 'Create Better Auth config',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/auth.${values.language === 'ts' ? 'ts' : 'js'} << 'BAEOF'
 import { betterAuth } from "better-auth"
 
@@ -519,7 +543,8 @@ BACEOF`,
 
     steps.push({
       label: 'Create Better Auth API route',
-      command: platformAwareMkdir(`${srcPrefix}app/api/auth/[...all]`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/auth/[...all]`) +
         ` && cat > ${srcPrefix}app/api/auth/[...all]/route.${values.language === 'ts' ? 'ts' : 'js'} << 'BAREOF'
 import { auth } from "${values.importAlias.replace('*', '')}lib/auth"
 import { toNextJsHandler } from "better-auth/next-js"
@@ -532,7 +557,8 @@ BAREOF`,
 
     steps.push({
       label: 'Create Firebase client config',
-      command: platformAwareMkdir(`${srcPrefix}lib/firebase`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib/firebase`) +
         ` && cat > ${srcPrefix}lib/firebase/config.${values.language === 'ts' ? 'ts' : 'js'} << 'FBEOF'
 import { initializeApp, getApps } from "firebase/app"
 import { getAuth } from "firebase/auth"
@@ -559,7 +585,8 @@ FBEOF`,
 
     steps.push({
       label: 'Create tRPC server config',
-      command: platformAwareMkdir(`${srcPrefix}server/trpc`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}server/trpc`) +
         ` && cat > ${srcPrefix}server/trpc/trpc.${values.language === 'ts' ? 'ts' : 'js'} << 'TRPCEOF'
 import { initTRPC } from "@trpc/server"
 import superjson from "superjson"
@@ -593,7 +620,8 @@ TRPCREOF`,
 
     steps.push({
       label: 'Create tRPC API route handler',
-      command: platformAwareMkdir(`${srcPrefix}app/api/trpc/[trpc]`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/trpc/[trpc]`) +
         ` && cat > ${srcPrefix}app/api/trpc/[trpc]/route.${values.language === 'ts' ? 'ts' : 'js'} << 'TRPCAEOF'
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch"
 import { appRouter } from "${values.importAlias.replace('*', '')}server/trpc/router"
@@ -614,7 +642,8 @@ TRPCAEOF`,
 
     steps.push({
       label: 'Create GraphQL API route',
-      command: platformAwareMkdir(`${srcPrefix}app/api/graphql`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/graphql`) +
         ` && cat > ${srcPrefix}app/api/graphql/route.${values.language === 'ts' ? 'ts' : 'js'} << 'GQLEOF'
 import { ApolloServer } from "@apollo/server"
 import { startServerAndCreateNextHandler } from "@as-integrations/next"
@@ -645,18 +674,23 @@ GQLEOF`,
 
     steps.push({
       label: 'Create Zustand example store',
-      command: platformAwareMkdir(`${srcPrefix}store`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}store`) +
         ` && cat > ${srcPrefix}store/use-counter.${values.language === 'ts' ? 'ts' : 'js'} << 'ZUEOF'
 import { create } from "zustand"
 
-${values.language === 'ts' ? `interface CounterState {
+${
+  values.language === 'ts'
+    ? `interface CounterState {
   count: number
   increment: () => void
   decrement: () => void
   reset: () => void
 }
 
-` : ''}export const useCounter = create${values.language === 'ts' ? '<CounterState>' : ''}((set) => ({
+`
+    : ''
+}export const useCounter = create${values.language === 'ts' ? '<CounterState>' : ''}((set) => ({
   count: 0,
   increment: () => set((state) => ({ count: state.count + 1 })),
   decrement: () => set((state) => ({ count: state.count - 1 })),
@@ -669,7 +703,8 @@ ZUEOF`,
 
     steps.push({
       label: 'Create Redux store',
-      command: platformAwareMkdir(`${srcPrefix}store`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}store`) +
         ` && cat > ${srcPrefix}store/index.${values.language === 'ts' ? 'ts' : 'js'} << 'REDUXEOF'
 import { configureStore } from "@reduxjs/toolkit"
 import counterReducer from "./counter-slice"
@@ -707,7 +742,8 @@ SLICEEOF`,
 
     steps.push({
       label: 'Create Redux Provider component',
-      command: platformAwareMkdir(`${srcPrefix}components/providers`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}components/providers`) +
         ` && cat > ${srcPrefix}components/providers/redux-provider.${values.language === 'ts' ? 'tsx' : 'jsx'} << 'RPEOF'
 "use client"
 import { Provider } from "react-redux"
@@ -723,7 +759,8 @@ RPEOF`,
 
     steps.push({
       label: 'Create Jotai example atoms',
-      command: platformAwareMkdir(`${srcPrefix}store`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}store`) +
         ` && cat > ${srcPrefix}store/atoms.${values.language === 'ts' ? 'ts' : 'js'} << 'JOTAIEOF'
 import { atom } from "jotai"
 
@@ -739,7 +776,8 @@ JOTAIEOF`,
 
     steps.push({
       label: 'Create Stripe server client',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/stripe.${values.language === 'ts' ? 'ts' : 'js'} << 'STRIPEEOF'
 import Stripe from "stripe"
 
@@ -752,7 +790,8 @@ STRIPEEOF`,
 
     steps.push({
       label: 'Create Stripe checkout API route',
-      command: platformAwareMkdir(`${srcPrefix}app/api/checkout`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/checkout`) +
         ` && cat > ${srcPrefix}app/api/checkout/route.${values.language === 'ts' ? 'ts' : 'js'} << 'CHKEOF'
 import { NextResponse } from "next/server"
 import { stripe } from "${values.importAlias.replace('*', '')}lib/stripe"
@@ -775,7 +814,8 @@ CHKEOF`,
 
     steps.push({
       label: 'Create Stripe webhook handler',
-      command: platformAwareMkdir(`${srcPrefix}app/api/webhooks/stripe`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/webhooks/stripe`) +
         ` && cat > ${srcPrefix}app/api/webhooks/stripe/route.${values.language === 'ts' ? 'ts' : 'js'} << 'WHEOF'
 import { NextResponse } from "next/server"
 import { stripe } from "${values.importAlias.replace('*', '')}lib/stripe"
@@ -818,7 +858,8 @@ WHEOF`,
 
     steps.push({
       label: 'Create Lemon Squeezy client',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/lemonsqueezy.${values.language === 'ts' ? 'ts' : 'js'} << 'LSEOF'
 import { lemonSqueezySetup } from "@lemonsqueezy/lemonsqueezy.js"
 
@@ -835,7 +876,8 @@ LSEOF`,
 
     steps.push({
       label: 'Create Paddle server client',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/paddle.${values.language === 'ts' ? 'ts' : 'js'} << 'PADDLEEOF'
 import { Paddle, Environment } from "@paddle/paddle-node-sdk"
 
@@ -852,7 +894,8 @@ PADDLEEOF`,
 
     steps.push({
       label: 'Create AI chat API route',
-      command: platformAwareMkdir(`${srcPrefix}app/api/chat`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}app/api/chat`) +
         ` && cat > ${srcPrefix}app/api/chat/route.${values.language === 'ts' ? 'ts' : 'js'} << 'AIEOF'
 import { openai } from "@ai-sdk/openai"
 import { streamText } from "ai"
@@ -914,7 +957,8 @@ AIPEOF`,
 
     steps.push({
       label: 'Create PostHog provider',
-      command: platformAwareMkdir(`${srcPrefix}components/providers`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}components/providers`) +
         ` && cat > ${srcPrefix}components/providers/posthog-provider.${values.language === 'ts' ? 'tsx' : 'jsx'} << 'PHEOF'
 "use client"
 import posthog from "posthog-js"
@@ -936,7 +980,8 @@ PHEOF`,
   } else if (values.monitoring === 'vercel-analytics') {
     steps.push({
       label: 'Add Vercel Analytics to layout',
-      description: 'Add <Analytics /> and <SpeedInsights /> to your root layout',
+      description:
+        'Add <Analytics /> and <SpeedInsights /> to your root layout',
       command: `echo "Add these imports to your root layout:\\nimport { Analytics } from '@vercel/analytics/react'\\nimport { SpeedInsights } from '@vercel/speed-insights/next'\\n\\nThen add <Analytics /> and <SpeedInsights /> inside the <body> tag."`,
     });
   } else if (values.monitoring === 'google-analytics') {
@@ -950,7 +995,10 @@ PHEOF`,
   // ━━ 15. i18n setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.i18n === 'next-intl') {
     const srcPrefix = values.srcDir ? 'src/' : '';
-    const langs = (values.languages || 'en').split(',').map(l => l.trim()).filter(Boolean);
+    const langs = (values.languages || 'en')
+      .split(',')
+      .map((l) => l.trim())
+      .filter(Boolean);
     const defaultLang = langs[0] || 'en';
 
     steps.push({
@@ -971,7 +1019,8 @@ I18NEOF`,
     for (const lang of langs) {
       steps.push({
         label: `Create ${lang} messages file`,
-        command: platformAwareMkdir('messages') +
+        command:
+          platformAwareMkdir('messages') +
           ` && cat > messages/${lang}.json << 'MSGEOF'
 {
   "common": {
@@ -1000,13 +1049,14 @@ I18NMEOF`,
 
     steps.push({
       label: 'Create routing config',
-      command: platformAwareMkdir(`${srcPrefix}i18n`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}i18n`) +
         ` && cat > ${srcPrefix}i18n/routing.${values.language === 'ts' ? 'ts' : 'js'} << 'RTEOF'
 import { defineRouting } from "next-intl/routing"
 import { createNavigation } from "next-intl/navigation"
 
 export const routing = defineRouting({
-  locales: [${langs.map(l => `"${l}"`).join(', ')}],
+  locales: [${langs.map((l) => `"${l}"`).join(', ')}],
   defaultLocale: "${defaultLang}",
   ${values.i18nRouting === 'no-prefix' ? 'localePrefix: "never",' : ''}
 })
@@ -1016,18 +1066,22 @@ RTEOF`,
     });
   } else if (values.i18n === 'react-i18next') {
     const srcPrefix = values.srcDir ? 'src/' : '';
-    const langs = (values.languages || 'en').split(',').map(l => l.trim()).filter(Boolean);
+    const langs = (values.languages || 'en')
+      .split(',')
+      .map((l) => l.trim())
+      .filter(Boolean);
 
     steps.push({
       label: 'Create i18next config',
-      command: platformAwareMkdir(`${srcPrefix}lib`) +
+      command:
+        platformAwareMkdir(`${srcPrefix}lib`) +
         ` && cat > ${srcPrefix}lib/i18n.${values.language === 'ts' ? 'ts' : 'js'} << 'RI18EOF'
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
 
 i18n.use(initReactI18next).init({
   resources: {
-${langs.map(l => `    ${l}: { translation: {} },`).join('\n')}
+${langs.map((l) => `    ${l}: { translation: {} },`).join('\n')}
   },
   lng: "${langs[0] || 'en'}",
   fallbackLng: "${langs[0] || 'en'}",
@@ -1093,7 +1147,8 @@ VSEOF`,
 
     steps.push({
       label: 'Add test script to package.json',
-      command: 'npm pkg set scripts.test="vitest" && npm pkg set scripts.test:run="vitest run"',
+      command:
+        'npm pkg set scripts.test="vitest" && npm pkg set scripts.test:run="vitest run"',
     });
   }
 
@@ -1171,7 +1226,9 @@ services:
     environment:
       - NODE_ENV=production${values.database === 'prisma' || values.database === 'drizzle' ? '\n      - DATABASE_URL=postgresql://postgres:postgres@db:5432/' + values.projectName : ''}${values.database === 'mongoose' ? '\n      - MONGODB_URI=mongodb://mongo:27017/' + values.projectName : ''}
     depends_on:${values.database === 'prisma' || values.database === 'drizzle' ? '\n      db:\n        condition: service_healthy' : values.database === 'mongoose' ? '\n      mongo:\n        condition: service_started' : '\n      []'}
-${values.database === 'prisma' || values.database === 'drizzle' ? `
+${
+  values.database === 'prisma' || values.database === 'drizzle'
+    ? `
   db:
     image: postgres:16-alpine
     environment:
@@ -1186,18 +1243,30 @@ ${values.database === 'prisma' || values.database === 'drizzle' ? `
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
-      retries: 5` : ''}${values.database === 'mongoose' ? `
+      retries: 5`
+    : ''
+}${
+        values.database === 'mongoose'
+          ? `
   mongo:
     image: mongo:7
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db` : ''}
-${values.database === 'prisma' || values.database === 'drizzle' ? `
+      - mongo_data:/data/db`
+          : ''
+      }
+${
+  values.database === 'prisma' || values.database === 'drizzle'
+    ? `
 volumes:
-  postgres_data:` : values.database === 'mongoose' ? `
+  postgres_data:`
+    : values.database === 'mongoose'
+      ? `
 volumes:
-  mongo_data:` : ''}
+  mongo_data:`
+      : ''
+}
 DCEOF`,
     });
 
@@ -1252,13 +1321,18 @@ DCEOF`,
     envVars.push('');
   } else if (values.auth === 'better-auth') {
     envVars.push('# Better Auth');
-    envVars.push('BETTER_AUTH_SECRET= # Generate with: openssl rand -base64 32');
+    envVars.push(
+      'BETTER_AUTH_SECRET= # Generate with: openssl rand -base64 32',
+    );
     envVars.push('');
   }
 
   if (values.database === 'prisma' || values.database === 'drizzle') {
     envVars.push('# Database');
-    envVars.push('DATABASE_URL=postgresql://postgres:postgres@localhost:5432/' + values.projectName);
+    envVars.push(
+      'DATABASE_URL=postgresql://postgres:postgres@localhost:5432/' +
+        values.projectName,
+    );
     envVars.push('');
   } else if (values.database === 'mongoose') {
     envVars.push('# Database');

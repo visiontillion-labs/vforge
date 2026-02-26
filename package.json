@@ -1,17 +1,17 @@
 {
-  "name": "boilerplate",
+  "name": "forge-by-visiontillion-labs",
   "version": "0.1.0",
   "description": "The ultimate comprehensive boilerplate generator for your new Next.js projects.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mustaquenadim/oriums-boilerplate.git"
+    "url": "git+https://github.com/visiontillion-labs/forge.git"
   },
-  "author": "Mustaque Nadim",
+  "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/mustaquenadim/oriums-boilerplate/issues"
+    "url": "https://github.com/visiontillion-labs/forge/issues"
   },
-  "homepage": "https://github.com/mustaquenadim/oriums-boilerplate#readme",
+  "homepage": "https://github.com/visiontillion-labs/forge#readme",
   "keywords": [
     "nextjs",
     "boilerplate",

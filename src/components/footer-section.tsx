@@ -37,10 +37,10 @@ export function FooterSection() {
           <div className='flex flex-col items-center justify-between gap-6 py-8 md:flex-row'>
             <div className='flex items-center gap-2'>
               <div className='flex h-6 w-6 items-center justify-center rounded-md bg-foreground'>
-                <span className='text-xs font-bold text-background'>O</span>
+                <span className='text-xs font-bold text-background'>F</span>
               </div>
               <span className='text-sm font-semibold tracking-tight'>
-                ORIUMS.
+                FORGE.
               </span>
             </div>
 
@@ -62,7 +62,7 @@ export function FooterSection() {
                 Generator
               </Link>
               <a
-                href='https://github.com/mustaquenadim/oriums-boilerplate'
+                href='https://github.com/visiontillion-labs/forge'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-muted-foreground transition-colors hover:text-foreground'

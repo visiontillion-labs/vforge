@@ -41,7 +41,13 @@ export async function POST(req: NextRequest) {
     const themeBaseColor = theme?.baseColor ?? 'neutral';
     const themePrimaryColor = theme?.primaryColor ?? 'default';
     const _themeFont: string = theme?.font ?? 'geist';
-    const themeComponents: string[] = theme?.components ?? ['button', 'card', 'input', 'form', 'dialog'];
+    const themeComponents: string[] = theme?.components ?? [
+      'button',
+      'card',
+      'input',
+      'form',
+      'dialog',
+    ];
 
     const stream = new PassThrough();
     const archive = archiver('zip', { zlib: { level: 9 } });
@@ -961,7 +967,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     let readmeContent = `# ${projectName}
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [Orium Boilerplate](https://github.com/mustaquenadim/oriums-boilerplate).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [Forge](https://github.com/visiontillion-labs/forge).
 
 ## Tech Stack
 
@@ -1845,7 +1851,6 @@ npx shadcn@latest add ${themeComponents.join(' ')}
         });
       }
     }
-
 
     archive.finalize();
 

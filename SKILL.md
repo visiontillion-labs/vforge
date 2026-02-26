@@ -1,9 +1,9 @@
 ---
-name: oriums-boilerplate
+name: forge-boilerplate
 description: A brief description of what this skill does
 ---
 
-# oriums-boilerplate
+# forge-boilerplate
 
 Instructions for the agent to follow when this skill is activated.
 

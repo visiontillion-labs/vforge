@@ -1,4 +1,4 @@
-# Oriums
+# Forge by VisionTillion Labs
 
 The most comprehensive boilerplate generator for Next.js. Configure your stack, customize your theme, and generate production-ready projects in seconds.
 
@@ -12,7 +12,7 @@ The most comprehensive boilerplate generator for Next.js. Configure your stack, 
 - **Theme Customization** - Customize radius, colors, fonts, and shadcn/ui components (like the shadcn themes page)
 - **Preset Templates** - Quick-start presets for SaaS, E-commerce, and Blog/CMS projects
 - **Live Preview** - Real-time file tree preview as you configure
-- **CLI Support** - Generate projects via `npx create-oriums-app` or download as ZIP
+- **CLI Support** - Generate projects via `npx create-forge-app` or download as ZIP
 - **Copyable Commands** - Copy installation commands directly from the UI
 - **Shareable Configs** - Share your configuration via URL
 
@@ -37,18 +37,18 @@ The most comprehensive boilerplate generator for Next.js. Configure your stack, 
 ### Using the CLI
 
 ```bash
-npx create-oriums-app my-app
+npx create-forge-app my-app
 ```
 
 Or with a preset:
 
 ```bash
-npx create-oriums-app my-app --preset saas
+npx create-forge-app my-app --preset saas
 ```
 
 ### Using the Web App
 
-Visit [oriums.dev](https://oriums.dev) to configure and download your boilerplate.
+Visit [Forge Web App](https://forge.visiontillion.com) to configure and download your boilerplate.
 
 ## Development
 
@@ -61,8 +61,8 @@ Visit [oriums.dev](https://oriums.dev) to configure and download your boilerplat
 
 ```bash
 # Clone the repository
-git clone https://github.com/mustaquenadim/oriums-boilerplate.git
-cd oriums-boilerplate
+git clone https://github.com/visiontillion-labs/forge.git
+cd forge
 
 # Install dependencies
 npm install

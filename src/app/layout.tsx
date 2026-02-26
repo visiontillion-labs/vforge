@@ -18,14 +18,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
+  title: 'Forge - The Ultimate Next.js Boilerplate Generator',
   description:
     'The most comprehensive boilerplate generator for Next.js. Configure auth, database, payments, AI, and more — then generate production-ready code.',
   openGraph: {
-    title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
+    title: 'Forge - The Ultimate Next.js Boilerplate Generator',
     description:
       'Configure auth, database, payments, AI, and more — then generate production-ready Next.js code.',
-    siteName: 'Oriums',
+    siteName: 'Forge',
   },
 };
 

@@ -4,7 +4,10 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { type ProjectConfig } from './presets.js';
 
-const API_URL = process.env.ORIUMS_API_URL || 'https://oriums.dev';
+const API_URL =
+  process.env.FORGE_API_URL ||
+  process.env.ORIUMS_API_URL ||
+  'https://forge.visiontillion.com';
 
 export async function generateProject(config: ProjectConfig): Promise<void> {
   const targetDir = path.resolve(process.cwd(), config.projectName);
@@ -14,7 +17,9 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
     const files = fs.readdirSync(targetDir);
     if (files.length > 0) {
       console.error(
-        chalk.red(`\n  Directory "${config.projectName}" already exists and is not empty.`),
+        chalk.red(
+          `\n  Directory "${config.projectName}" already exists and is not empty.`,
+        ),
       );
       process.exit(1);
     }
@@ -67,12 +72,16 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
     console.log('');
 
     if (config.database === 'prisma') {
-      console.log(chalk.dim('  Don\'t forget to run:'));
+      console.log(chalk.dim("  Don't forget to run:"));
       console.log(chalk.cyan('    npx prisma generate'));
       console.log('');
     }
 
-    if (config.auth !== 'none' || config.database !== 'none' || config.payment !== 'none') {
+    if (
+      config.auth !== 'none' ||
+      config.database !== 'none' ||
+      config.payment !== 'none'
+    ) {
       console.log(
         chalk.dim('  Set up your environment variables in .env.local'),
       );
@@ -80,9 +89,7 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
       console.log('');
     }
 
-    console.log(
-      chalk.dim(`  Project created at: ${chalk.bold(targetDir)}`),
-    );
+    console.log(chalk.dim(`  Project created at: ${chalk.bold(targetDir)}`));
     console.log('');
   } catch (error) {
     spinner.fail(chalk.red('Failed to generate project'));
@@ -95,7 +102,7 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
       );
       console.error(
         chalk.yellow(
-          '  Alternatively, use the web app at https://oriums.dev',
+          '  Alternatively, use the Forge web app at https://forge.visiontillion.com',
         ),
       );
     } else {
