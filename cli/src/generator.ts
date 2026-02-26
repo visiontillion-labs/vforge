@@ -4,10 +4,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { type ProjectConfig } from './presets.js';
 
-const API_URL =
-  process.env.FORGE_API_URL ||
-  process.env.ORIUMS_API_URL ||
-  'https://forge.visiontillion.com';
+const API_URL = process.env.FORGE_API_URL || 'https://forge.visiontillion.com';
 
 export async function generateProject(config: ProjectConfig): Promise<void> {
   const targetDir = path.resolve(process.cwd(), config.projectName);

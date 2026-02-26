@@ -1,0 +1,62 @@
+name: Smoke Matrix
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+
+jobs:
+    smoke-matrix:
+        runs-on: ubuntu-latest
+        timeout-minutes: 20
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 10
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: pnpm
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Start app
+              run: |
+                  pnpm dev > /tmp/next-dev.log 2>&1 &
+                  echo $! > /tmp/next-dev.pid
+
+            - name: Wait for app to be ready
+              run: |
+                  for i in {1..120}; do
+                    if curl -fsS http://127.0.0.1:3000 > /dev/null; then
+                      echo "App is ready"
+                      exit 0
+                    fi
+                    sleep 1
+                  done
+                  echo "App did not start in time"
+                  cat /tmp/next-dev.log
+                  exit 1
+
+            - name: Run smoke matrix
+              run: pnpm smoke:matrix --base-url http://127.0.0.1:3000
+
+            - name: Print dev logs on failure
+              if: failure()
+              run: cat /tmp/next-dev.log || true
+
+            - name: Stop app
+              if: always()
+              run: |
+                  if [ -f /tmp/next-dev.pid ]; then
+                    kill $(cat /tmp/next-dev.pid) || true
+                  fi

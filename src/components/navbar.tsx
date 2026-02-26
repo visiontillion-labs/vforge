@@ -4,16 +4,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Github, Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 export function Navbar() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <header className='sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-xl'>

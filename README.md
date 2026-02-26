@@ -19,7 +19,7 @@ The most comprehensive boilerplate generator for Next.js. Configure your stack, 
 ## Supported Integrations
 
 | Category | Options |
-|----------|---------|
+| -------- | ------- |
 | **Authentication** | Auth.js, NextAuth.js, Clerk, Supabase, Firebase, Better Auth |
 | **Database** | Prisma, Drizzle ORM, Mongoose, Firebase Firestore |
 | **API Layer** | tRPC, GraphQL |
@@ -73,11 +73,32 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
 
+### Smoke Matrix Testing
+
+The generator includes a smoke matrix test that validates representative package combinations (auth, DB, API, state, payments, monitoring, i18n, and mixed stacks).
+
+```bash
+# Start the app (in one terminal)
+pnpm dev
+
+# Run matrix checks (in another terminal)
+pnpm smoke:matrix --base-url http://127.0.0.1:3000
+```
+
+Expected output:
+
+```text
+TOTAL_CASES=33
+ALL_PASS
+```
+
+CI runs the same check on pull requests and pushes to `main` via [.github/workflows/smoke-matrix.yml](.github/workflows/smoke-matrix.yml).
+
 ### Environment Variables (Optional)
 
 Create a `.env.local` file for analytics:
 
-```
+```env
 NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
 NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com

@@ -25,7 +25,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke:matrix": "python scripts/smoke-matrix.py"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",

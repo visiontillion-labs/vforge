@@ -1,9 +1,9 @@
 ---
-name: forge-boilerplate
+name: forge
 description: A brief description of what this skill does
 ---
 
-# forge-boilerplate
+# forge
 
 Instructions for the agent to follow when this skill is activated.
 

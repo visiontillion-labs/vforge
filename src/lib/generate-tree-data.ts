@@ -150,6 +150,7 @@ export function buildTreeData(values: FormValues): TreeData {
       case 'authjs':
         addPath(tree, `auth.config.${ext}`);
         addPath(tree, `auth.${ext}`);
+        addPath(tree, `${src}app/api/auth/[...nextauth]/route.${ext}`);
         break;
       case 'next-auth':
         addPath(tree, `${src}app/api/auth/[...nextauth]/route.${ext}`);
@@ -171,6 +172,8 @@ export function buildTreeData(values: FormValues): TreeData {
         break;
       case 'better-auth':
         addPath(tree, `${src}lib/auth.${ext}`);
+        addPath(tree, `${src}lib/auth-client.${ext}`);
+        addPath(tree, `${src}app/api/auth/[...all]/route.${ext}`);
         break;
     }
   }
