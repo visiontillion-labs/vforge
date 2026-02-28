@@ -4,7 +4,9 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { type ProjectConfig } from './presets.js';
 
-const API_URL = process.env.ORIUMS_API_URL || 'https://oriums.dev';
+const API_URL =
+  process.env.VFORGE_API_URL ||
+  'https://vforge.dev';
 
 export async function generateProject(config: ProjectConfig): Promise<void> {
   const targetDir = path.resolve(process.cwd(), config.projectName);
@@ -95,7 +97,7 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
       );
       console.error(
         chalk.yellow(
-          '  Alternatively, use the web app at https://oriums.dev',
+          '  Alternatively, use the web app at https://vforge.dev',
         ),
       );
     } else {

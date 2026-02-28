@@ -961,7 +961,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     let readmeContent = `# ${projectName}
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [Orium Boilerplate](https://github.com/mustaquenadim/oriums-boilerplate).
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [VForge](https://github.com/Visiontillion/forge) by Visiontillion Labs.
 
 ## Tech Stack
 

@@ -18,14 +18,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
+  title: 'VForge - Next.js Generator by Visiontillion Labs',
   description:
-    'The most comprehensive boilerplate generator for Next.js. Configure auth, database, payments, AI, and more — then generate production-ready code.',
+    'VForge by Visiontillion Labs helps you configure auth, database, payments, AI, and more, then generate production-ready Next.js code.',
   openGraph: {
-    title: 'Oriums - The Ultimate Next.js Boilerplate Generator',
+    title: 'VForge - Next.js Generator by Visiontillion Labs',
     description:
-      'Configure auth, database, payments, AI, and more — then generate production-ready Next.js code.',
-    siteName: 'Oriums',
+      'Configure auth, database, payments, AI, and more — then generate production-ready Next.js code with VForge.',
+    siteName: 'VForge',
   },
 };
 

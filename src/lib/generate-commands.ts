@@ -53,7 +53,7 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.auth !== 'none') cliFlags.push(`--auth ${values.auth}`);
   if (values.database !== 'none') cliFlags.push(`--database ${values.database}`);
 
-  const cliCommand = `npx create-oriums-app ${values.projectName}${cliFlags.length ? ' ' + cliFlags.join(' ') : ''}`;
+  const cliCommand = `npx create-vforge-app ${values.projectName}${cliFlags.length ? ' ' + cliFlags.join(' ') : ''}`;
 
   // ── Manual steps ────────────────────────────────────────────────
   const steps: ManualStep[] = [];
@@ -77,6 +77,13 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   steps.push({
     label: 'Navigate to project',
     command: `cd ${values.projectName}`,
+  });
+
+  steps.push({
+    label: 'Use a compatible shell',
+    description:
+      'These manual commands use bash syntax (heredoc and mkdir -p). On Windows, use Git Bash or WSL.',
+    command: 'echo "Shell ready"',
   });
 
   // ━━ 3. Core dependencies ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -181,7 +188,7 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.features.git) {
     steps.push({
       label: 'Initialize Git repository',
-      command: 'git init && git add -A && git commit -m "Initial commit from Oriums"',
+      command: 'git init && git add -A && git commit -m "Initial commit from VForge"',
     });
   }
 

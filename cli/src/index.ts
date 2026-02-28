@@ -9,7 +9,7 @@ import { getPreset, presetNames } from './presets.js';
 const program = new Command();
 
 program
-  .name('create-oriums-app')
+  .name('create-vforge-app')
   .description('Generate production-ready Next.js boilerplate projects')
   .version('1.0.0')
   .argument('[project-name]', 'Name of the project')
@@ -21,8 +21,8 @@ program
   .option('-y, --yes', 'Skip prompts and use defaults')
   .action(async (projectName: string | undefined, options) => {
     console.log('');
-    console.log(chalk.bold.cyan('  Oriums'));
-    console.log(chalk.dim('  The ultimate boilerplate generator for Next.js'));
+    console.log(chalk.bold.cyan('  VForge'));
+    console.log(chalk.dim('  Next.js generator by Visiontillion Labs'));
     console.log('');
 
     try {

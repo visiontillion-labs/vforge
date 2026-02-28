@@ -1,24 +1,24 @@
-# create-oriums-app
+# create-vforge-app
 
-The CLI companion for [Oriums](https://oriums.dev) - generate production-ready Next.js boilerplate projects from your terminal.
+The CLI companion for [VForge](https://vforge.dev) - generate production-ready Next.js boilerplate projects from your terminal.
 
 ## Usage
 
 ```bash
-npx create-oriums-app my-app
+npx create-vforge-app my-app
 ```
 
 ### With Presets
 
 ```bash
 # SaaS starter with auth, payments, DB & monitoring
-npx create-oriums-app my-saas --preset saas
+npx create-vforge-app my-saas --preset saas
 
 # E-commerce with payments & i18n
-npx create-oriums-app my-store --preset ecommerce
+npx create-vforge-app my-store --preset ecommerce
 
 # Blog/CMS with SEO & AI
-npx create-oriums-app my-blog --preset blog
+npx create-vforge-app my-blog --preset blog
 ```
 
 ### Interactive Mode
@@ -26,7 +26,7 @@ npx create-oriums-app my-blog --preset blog
 Running without flags will start interactive prompts:
 
 ```bash
-npx create-oriums-app
+npx create-vforge-app
 ```
 
 You'll be guided through:

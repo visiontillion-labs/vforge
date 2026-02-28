@@ -1,12 +1,12 @@
 {
-  "name": "create-oriums-app",
+  "name": "create-vforge-app",
   "version": "1.0.0",
-  "description": "CLI to generate production-ready Next.js boilerplate projects",
-  "author": "Oriums",
+  "description": "VForge CLI to generate production-ready Next.js boilerplate projects",
+  "author": "Visiontillion Labs",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mustaquenadim/oriums-boilerplate.git",
+    "url": "https://github.com/Visiontillion/forge.git",
     "directory": "cli"
   },
   "keywords": [
@@ -19,7 +19,7 @@
     "create-app"
   ],
   "bin": {
-    "create-oriums-app": "./dist/index.js"
+    "create-vforge-app": "./dist/index.js"
   },
   "files": [
     "dist",

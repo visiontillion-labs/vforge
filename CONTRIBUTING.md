@@ -1,6 +1,6 @@
-# Contributing to Oriums
+# Contributing to VForge
 
-Thank you for your interest in contributing to Oriums! This guide will help you get started.
+Thank you for your interest in contributing to VForge by Visiontillion Labs! This guide will help you get started.
 
 ## Development Setup
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to Oriums! This guide will help you 
 2. Clone your fork:
 
 ```bash
-git clone https://github.com/<your-username>/oriums-boilerplate.git
-cd oriums-boilerplate
+git clone https://github.com/<your-username>/forge.git
+cd forge
 ```
 
 3. Install dependencies:
@@ -44,7 +44,7 @@ npm run dev
 ## Project Structure
 
 ```
-oriums-boilerplate/
+forge/
 ├── src/
 │   ├── app/                  # Next.js App Router pages
 │   ├── components/           # React components
@@ -53,7 +53,7 @@ oriums-boilerplate/
 │   ├── lib/                 # Utilities and helpers
 │   ├── hooks/               # Custom React hooks
 │   └── templates/           # Boilerplate template files
-├── cli/                     # CLI package (create-oriums-app)
+├── cli/                     # CLI package (create-vforge-app)
 └── public/                  # Static assets
 ```
 
@@ -61,14 +61,14 @@ oriums-boilerplate/
 
 ### Reporting Bugs
 
-- Use the [Bug Report](https://github.com/Oriums/oriums-boilerplate/issues/new?template=bug_report.md) issue template
+- Use the [Bug Report](https://github.com/Visiontillion/forge/issues/new?template=bug_report.md) issue template
 - Include steps to reproduce
 - Include expected vs actual behavior
 - Include screenshots if applicable
 
 ### Suggesting Features
 
-- Use the [Feature Request](https://github.com/Oriums/oriums-boilerplate/issues/new?template=feature_request.md) issue template
+- Use the [Feature Request](https://github.com/Visiontillion/forge/issues/new?template=feature_request.md) issue template
 - Describe the use case clearly
 - Explain why this feature would be useful
 

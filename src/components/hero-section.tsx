@@ -11,7 +11,7 @@ export function HeroSection() {
 
   const copyCommand = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText('npx create-oriums-app my-app');
+      await navigator.clipboard.writeText('npx create-vforge-app my-app');
       setCopied(true);
       toast.success('Copied to clipboard!');
       setTimeout(() => setCopied(false), 2000);
@@ -61,7 +61,7 @@ export function HeroSection() {
               className='group flex items-center gap-3 rounded-lg border border-border/60 bg-muted/30 px-5 py-3 font-mono text-sm shadow-sm backdrop-blur-sm transition-all hover:border-border hover:bg-muted/50 hover:shadow-md'
             >
               <span className='text-muted-foreground/60'>$</span>
-              <span>npx create-oriums-app my-app</span>
+              <span>npx create-vforge-app my-app</span>
               {copied ? (
                 <Check className='h-4 w-4 text-foreground' />
               ) : (
@@ -79,7 +79,7 @@ export function HeroSection() {
               </Button>
             </Link>
             <a
-              href='https://github.com/mustaquenadim/oriums-boilerplate'
+              href='https://github.com/Visiontillion/forge'
               target='_blank'
               rel='noopener noreferrer'
             >
@@ -114,7 +114,7 @@ export function HeroSection() {
                 <span className='text-muted-foreground'>export const</span>{' '}
                 <span className='text-foreground'>config</span>{' '}
                 ={' '}
-                <span className='text-foreground font-semibold'>createOriums</span>
+                <span className='text-foreground font-semibold'>createVForge</span>
                 ({'{'}
               </p>
               <p className='pl-6'>
