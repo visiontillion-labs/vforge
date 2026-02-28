@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Visiontillion/forge.git",
+    "url": "https://github.com/visiontillion-labs/forge.git",
     "directory": "cli"
   },
   "keywords": [

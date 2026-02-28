@@ -1,17 +1,17 @@
 {
-  "name": "boilerplate",
+  "name": "forge-by-visiontillion-labs",
   "version": "0.1.0",
   "description": "VForge by Visiontillion Labs: a comprehensive Next.js boilerplate generator.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Visiontillion/forge.git"
+    "url": "git+https://github.com/visiontillion-labs/forge.git"
   },
-  "author": "Mustaque Nadim",
+  "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Visiontillion/forge/issues"
+    "url": "https://github.com/visiontillion-labs/forge/issues"
   },
-  "homepage": "https://github.com/Visiontillion/forge#readme",
+  "homepage": "https://github.com/visiontillion-labs/forge#readme",
   "keywords": [
     "nextjs",
     "boilerplate",
@@ -25,7 +25,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke:matrix": "python scripts/smoke-matrix.py"
   },
   "dependencies": {
     "@base-ui/react": "^1.1.0",

@@ -13,11 +13,20 @@ program
   .description('Generate production-ready Next.js boilerplate projects')
   .version('1.0.0')
   .argument('[project-name]', 'Name of the project')
-  .option('--preset <name>', `Use a preset template (${presetNames.join(', ')})`)
+  .option(
+    '--preset <name>',
+    `Use a preset template (${presetNames.join(', ')})`,
+  )
   .option('--router <type>', 'Router type: app or pages')
   .option('--javascript', 'Use JavaScript instead of TypeScript')
-  .option('--auth <provider>', 'Auth provider (authjs, clerk, supabase, firebase, better-auth)')
-  .option('--database <orm>', 'Database ORM (prisma, drizzle, mongoose, firebase)')
+  .option(
+    '--auth <provider>',
+    'Auth provider (authjs, clerk, supabase, firebase, better-auth)',
+  )
+  .option(
+    '--database <orm>',
+    'Database ORM (prisma, drizzle, mongoose, firebase)',
+  )
   .option('-y, --yes', 'Skip prompts and use defaults')
   .action(async (projectName: string | undefined, options) => {
     console.log('');
@@ -67,7 +76,9 @@ program
         const preset = getPreset(options.preset);
         if (!preset) {
           console.error(
-            chalk.red(`Unknown preset: ${options.preset}. Available: ${presetNames.join(', ')}`),
+            chalk.red(
+              `Unknown preset: ${options.preset}. Available: ${presetNames.join(', ')}`,
+            ),
           );
           process.exit(1);
         }

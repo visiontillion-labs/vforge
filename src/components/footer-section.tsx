@@ -62,7 +62,7 @@ export function FooterSection() {
                 Generator
               </Link>
               <a
-                href='https://github.com/Visiontillion/forge'
+                href='https://github.com/visiontillion-labs/forge'
                 target='_blank'
                 rel='noopener noreferrer'
                 className='text-muted-foreground transition-colors hover:text-foreground'

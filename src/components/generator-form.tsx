@@ -54,7 +54,6 @@ import {
   FileCode,
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'next/navigation';
 import { ProjectPreview } from '@/components/project-preview';
 import { CommandBlock } from '@/components/command-block';
 import { toast } from 'sonner';
@@ -69,10 +68,6 @@ import {
   fontOptions,
   shadcnComponents,
   shadcnComponentCategories,
-  type BaseColorId,
-  type PrimaryColorId,
-  type FontId,
-  type RadiusValue,
 } from '@/lib/color-presets';
 import { cn } from '@/lib/utils';
 
@@ -140,17 +135,36 @@ const formSchema = z.object({
     radius: z.number(),
     baseColor: z.enum(['neutral', 'slate', 'zinc', 'gray', 'stone']),
     primaryColor: z.enum([
-      'default', 'red', 'orange', 'amber', 'yellow', 'green',
-      'emerald', 'blue', 'violet', 'purple', 'pink', 'rose',
+      'default',
+      'red',
+      'orange',
+      'amber',
+      'yellow',
+      'green',
+      'emerald',
+      'blue',
+      'violet',
+      'purple',
+      'pink',
+      'rose',
     ]),
     font: z.enum([
-      'inter', 'geist', 'plus-jakarta-sans', 'manrope', 'outfit', 'raleway',
+      'inter',
+      'geist',
+      'plus-jakarta-sans',
+      'manrope',
+      'outfit',
+      'raleway',
     ]),
     components: z.array(z.string()),
   }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+interface GeneratorFormProps {
+  sharedConfig?: string;
+}
 
 const defaultValues: FormValues = {
   projectName: 'my-next-app',
@@ -298,12 +312,11 @@ const presets: Preset[] = [
   },
 ];
 
-export function GeneratorForm() {
+export function GeneratorForm({ sharedConfig }: GeneratorFormProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [hasCopied, setHasCopied] = useState(false);
   const [isSharedConfig, setIsSharedConfig] = useState(false);
-  const searchParams = useSearchParams();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -312,7 +325,7 @@ export function GeneratorForm() {
 
   // ── Restore config from URL on mount ──────────────────────────────
   useEffect(() => {
-    const configParam = searchParams.get('config');
+    const configParam = sharedConfig;
     if (configParam) {
       const decoded = decodeConfig(configParam);
       if (decoded) {
@@ -1163,7 +1176,9 @@ export function GeneratorForm() {
                           key={r}
                           type='button'
                           onClick={() =>
-                            form.setValue('theme.radius', r, { shouldValidate: true })
+                            form.setValue('theme.radius', r, {
+                              shouldValidate: true,
+                            })
                           }
                           className={cn(
                             'flex h-10 w-10 items-center justify-center border-2 text-xs font-medium transition-colors',
@@ -1355,10 +1370,10 @@ export function GeneratorForm() {
 
               {warnings.length > 0 && (
                 <div className='space-y-3'>
-                  {warnings.map((warning, idx) => (
+                  {warnings.map((warning) => (
                     <Alert
                       variant='destructive'
-                      key={idx}
+                      key={warning}
                       className='border-yellow-600/50 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 [&>svg]:text-yellow-600 dark:[&>svg]:text-yellow-400'
                     >
                       <AlertTriangle className='h-4 w-4' />
@@ -1421,7 +1436,7 @@ export function GeneratorForm() {
                     Follow these steps to set up your project manually:
                   </p>
                   {generateCommands(watchedValues).manual.map((step, idx) => (
-                    <div key={idx} className='space-y-1'>
+                    <div key={step.label} className='space-y-1'>
                       <div className='flex items-center gap-2'>
                         <span className='flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary'>
                           {idx + 1}

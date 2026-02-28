@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { GeneratorForm } from '@/components/generator-form';
 import { Navbar } from '@/components/navbar';
 import { FooterSection } from '@/components/footer-section';
@@ -9,7 +8,15 @@ export const metadata = {
     'Configure your Next.js boilerplate with auth, database, payments, AI and more. Generate production-ready code in seconds.',
 };
 
-export default function GeneratorPage() {
+interface GeneratorPageProps {
+  searchParams: Promise<{ config?: string }>;
+}
+
+export default async function GeneratorPage({
+  searchParams,
+}: GeneratorPageProps) {
+  const resolvedSearchParams = await searchParams;
+
   return (
     <div className='min-h-screen bg-background flex flex-col'>
       <Navbar />
@@ -40,9 +47,7 @@ export default function GeneratorPage() {
               </p>
             </div>
 
-            <Suspense fallback={null}>
-              <GeneratorForm />
-            </Suspense>
+            <GeneratorForm sharedConfig={resolvedSearchParams.config} />
           </div>
         </section>
       </main>

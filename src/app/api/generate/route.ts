@@ -40,8 +40,13 @@ export async function POST(req: NextRequest) {
     const themeRadius = theme?.radius ?? 0.5;
     const themeBaseColor = theme?.baseColor ?? 'neutral';
     const themePrimaryColor = theme?.primaryColor ?? 'default';
-    const _themeFont: string = theme?.font ?? 'geist';
-    const themeComponents: string[] = theme?.components ?? ['button', 'card', 'input', 'form', 'dialog'];
+    const themeComponents: string[] = theme?.components ?? [
+      'button',
+      'card',
+      'input',
+      'form',
+      'dialog',
+    ];
 
     const stream = new PassThrough();
     const archive = archiver('zip', { zlib: { level: 9 } });
@@ -516,13 +521,90 @@ export async function getStaticProps(context) {
         }
 
         // Middleware (required for next-intl)
-        const middlewarePath = path.join(intlDir, 'middleware.ts');
-        if (fs.existsSync(middlewarePath)) {
-          const mContent = fs.readFileSync(middlewarePath, 'utf-8');
-          // Update locales in middleware if hardcoded (usually it imports from config, but lets check)
-          // If it imports from somewhere else, we good. Assuming standard template.
-          // Just add the file.
-          archive.append(Buffer.from(mContent), { name: 'middleware.ts' });
+        const localeList = supportedLocales.map((l: string) => `'${l}'`).join(', ');
+        const localePrefixLine =
+          i18nRouting === 'no-prefix' ? `  localePrefix: 'never',\n` : '';
+
+        if (auth === 'clerk') {
+          const composedMiddleware = `import { clerkMiddleware } from '@clerk/nextjs/server';
+import createMiddleware from 'next-intl/middleware';
+
+const intlMiddleware = createMiddleware({
+  locales: [${localeList}],
+  defaultLocale: 'en',
+${localePrefixLine}});
+
+export default clerkMiddleware((_, req) => {
+  return intlMiddleware(req);
+});
+
+export const config = {
+  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)'],
+};
+`;
+          archive.append(Buffer.from(composedMiddleware), {
+            name: 'middleware.ts',
+          });
+        } else if (auth === 'supabase') {
+          const composedMiddleware = `import createMiddleware from 'next-intl/middleware';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { type NextRequest } from 'next/server';
+
+const intlMiddleware = createMiddleware({
+  locales: [${localeList}],
+  defaultLocale: 'en',
+${localePrefixLine}});
+
+export async function middleware(request: NextRequest) {
+  const response = intlMiddleware(request);
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({ name, value, ...options });
+          response.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({ name, value: '', ...options });
+          response.cookies.set({ name, value: '', ...options });
+        },
+      },
+    },
+  );
+
+  await supabase.auth.getUser();
+
+  return response;
+}
+
+export const config = {
+  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)'],
+};
+`;
+          archive.append(Buffer.from(composedMiddleware), {
+            name: 'middleware.ts',
+          });
+        } else {
+          const middlewareContent = `import createMiddleware from 'next-intl/middleware';
+
+export default createMiddleware({
+  locales: [${localeList}],
+  defaultLocale: 'en',
+${localePrefixLine}});
+
+export const config = {
+  matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)'],
+};
+`;
+          archive.append(Buffer.from(middlewareContent), {
+            name: 'middleware.ts',
+          });
         }
 
         // Messages
@@ -598,17 +680,7 @@ export async function getStaticProps(context) {
         `import { Provider as ReduxProvider } from 'react-redux'`,
       );
       providersImports.push(`import { makeStore } from '@/store/store'`);
-      // Redux needs a store instance or refs.
-      // Standard pattern: <ReduxProvider store={store}>
-      // But makeStore creates it.
-      // We'll assume the component handles it or we pass it.
-      // For simplicity, let's assume we create it here or the provider handles it.
-      // Actually best to just import a pre-made provider from template if complex.
-      // But let's try to inline it:
-      // const store = makeStore(); <ReduxProvider store={store}>
-      // This is hard to gen in string.
-      // Alternative: The template should provide a `ReduxProvider` component like we did for PostHog.
-      // I'll skip complex Redux logic for now and just wrap if I can, or maybe I should have made a `ReduxProvider` component in the template. source/store/ReduxProvider.tsx
+      providersWrappers.push('ReduxProvider store={storeRef.current!}');
     }
 
     // Monitoring Providers
@@ -631,10 +703,22 @@ export async function getStaticProps(context) {
     }
 
     // Construct the file content
-    let providersContent = `
+    const needsClientProvider =
+      providersWrappers.length > 0 ||
+      auth === 'authjs' ||
+      auth === 'next-auth' ||
+      state === 'redux';
+
+    const reduxStoreSetup =
+      state === 'redux'
+        ? `  const storeRef = React.useRef<ReturnType<typeof makeStore> | null>(null)\n  if (!storeRef.current) {\n    storeRef.current = makeStore()\n  }\n\n`
+        : '';
+
+    let providersContent = `${needsClientProvider ? `'use client';\n\n` : ''}
 ${providersImports.join('\n')}
 
 export function Providers({ children }: { children: React.ReactNode }) {
+${reduxStoreSetup}  
   return (
     <>
 `;
@@ -648,7 +732,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
     // Close wrappers (reverse)
     [...providersWrappers].reverse().forEach((wrapper) => {
-      providersContent += `      </${wrapper}>\n`;
+      const wrapperTag = wrapper.split(' ')[0];
+      providersContent += `      </${wrapperTag}>\n`;
     });
 
     providersContent += `    </>
@@ -673,122 +758,119 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
       // Auth
       if (auth === 'authjs') {
-        packageJson.dependencies['next-auth'] = 'beta';
+        packageJson.dependencies['next-auth'] = 'latest';
       } else if (auth === 'next-auth') {
-        packageJson.dependencies['next-auth'] = '^4.24.5';
+        packageJson.dependencies['next-auth'] = 'latest';
       } else if (auth === 'clerk') {
-        packageJson.dependencies['@clerk/nextjs'] = '^4.29.3';
+        packageJson.dependencies['@clerk/nextjs'] = 'latest';
       } else if (auth === 'supabase') {
-        packageJson.dependencies['@supabase/supabase-js'] = '^2.39.3';
-        packageJson.dependencies['@supabase/ssr'] = '^0.1.0';
+        packageJson.dependencies['@supabase/supabase-js'] = 'latest';
+        packageJson.dependencies['@supabase/ssr'] = 'latest';
       } else if (auth === 'firebase') {
-        packageJson.dependencies['firebase'] = '^10.7.1';
+        packageJson.dependencies['firebase'] = 'latest';
       } else if (auth === 'better-auth') {
-        // better-auth deps
+        packageJson.dependencies['better-auth'] = 'latest';
       }
 
       // Database
       if (database === 'prisma') {
-        packageJson.devDependencies['prisma'] = '^5.10.2';
-        packageJson.dependencies['@prisma/client'] = '^5.10.2';
+        packageJson.devDependencies['prisma'] = 'latest';
+        packageJson.dependencies['@prisma/client'] = 'latest';
       } else if (database === 'drizzle') {
-        packageJson.dependencies['drizzle-orm'] = '^0.29.3';
-        packageJson.dependencies['postgres'] = '^3.4.3';
-        packageJson.devDependencies['drizzle-kit'] = '^0.20.14';
+        packageJson.dependencies['drizzle-orm'] = 'latest';
+        packageJson.dependencies['postgres'] = 'latest';
+        packageJson.devDependencies['drizzle-kit'] = 'latest';
       } else if (database === 'mongoose') {
-        packageJson.dependencies['mongoose'] = '^8.1.1';
+        packageJson.dependencies['mongoose'] = 'latest';
       }
 
       // API
       if (api === 'trpc') {
-        packageJson.dependencies['@trpc/server'] = '^10.45.0';
-        packageJson.dependencies['@trpc/client'] = '^10.45.0';
-        packageJson.dependencies['@trpc/react-query'] = '^10.45.0';
-        packageJson.dependencies['@tanstack/react-query'] = '^5.17.19';
-        packageJson.dependencies['zod'] = '^3.22.4';
+        packageJson.dependencies['@trpc/server'] = 'latest';
+        packageJson.dependencies['zod'] = 'latest';
       } else if (api === 'graphql') {
-        packageJson.dependencies['graphql'] = '^16.8.1';
-        packageJson.dependencies['graphql-yoga'] = '^5.1.1';
+        packageJson.dependencies['graphql'] = 'latest';
+        packageJson.dependencies['graphql-yoga'] = 'latest';
       }
 
       // State
       if (state === 'zustand') {
-        packageJson.dependencies['zustand'] = '^4.5.0';
+        packageJson.dependencies['zustand'] = 'latest';
       } else if (state === 'redux') {
-        packageJson.dependencies['react-redux'] = '^9.1.0';
-        packageJson.dependencies['@reduxjs/toolkit'] = '^2.1.0';
+        packageJson.dependencies['react-redux'] = 'latest';
+        packageJson.dependencies['@reduxjs/toolkit'] = 'latest';
       } else if (state === 'jotai') {
-        packageJson.dependencies['jotai'] = '^2.6.4';
+        packageJson.dependencies['jotai'] = 'latest';
       }
 
       // Payment
       if (payment === 'stripe') {
-        packageJson.dependencies['stripe'] = '^14.16.0';
+        packageJson.dependencies['stripe'] = 'latest';
       } else if (payment === 'lemonsqueezy') {
-        packageJson.dependencies['@lemonsqueezy/lemonsqueezy.js'] = '^2.2.0';
+        packageJson.dependencies['@lemonsqueezy/lemonsqueezy.js'] = 'latest';
       } else if (payment === 'paddle') {
-        packageJson.dependencies['@paddle/paddle-node-sdk'] = '^1.0.0';
+        packageJson.dependencies['@paddle/paddle-node-sdk'] = 'latest';
       } else if (payment === 'dodo') {
-        packageJson.dependencies['dodopayments'] = '^0.0.1'; // Check version
+        packageJson.dependencies['dodopayments'] = 'latest';
       } else if (payment === 'polar') {
-        packageJson.dependencies['@polar-sh/sdk'] = '^0.1.0';
+        packageJson.dependencies['@polar-sh/sdk'] = 'latest';
       }
 
       // AI
       if (ai === 'vercel-ai-sdk') {
-        packageJson.dependencies['ai'] = '^2.2.31';
-        packageJson.dependencies['openai'] = '^4.26.0';
-        packageJson.dependencies['@ai-sdk/openai'] = '^0.0.12';
+        packageJson.dependencies['ai'] = 'latest';
+        packageJson.dependencies['@ai-sdk/openai'] = 'latest';
       }
 
       // Monitoring
       if (monitoring === 'sentry') {
-        packageJson.dependencies['@sentry/nextjs'] = '^7.100.1';
+        packageJson.dependencies['@sentry/nextjs'] = 'latest';
       } else if (monitoring === 'posthog') {
-        packageJson.dependencies['posthog-js'] = '^1.100.0';
+        packageJson.dependencies['posthog-js'] = 'latest';
       } else if (monitoring === 'logrocket') {
-        packageJson.dependencies['logrocket'] = '^8.0.0';
+        packageJson.dependencies['logrocket'] = 'latest';
       } else if (monitoring === 'google-analytics') {
-        packageJson.dependencies['@next/third-parties'] = '^13.4.0';
+        packageJson.dependencies['@next/third-parties'] = 'latest';
       } else if (monitoring === 'vercel-analytics') {
-        packageJson.dependencies['@vercel/analytics'] = '^1.1.1';
+        packageJson.dependencies['@vercel/analytics'] = 'latest';
+        packageJson.dependencies['@vercel/speed-insights'] = 'latest';
       }
 
       // I18n
       if (i18n === 'next-intl') {
-        packageJson.dependencies['next-intl'] = '^3.5.0';
+        packageJson.dependencies['next-intl'] = 'latest';
       } else if (i18n === 'react-i18next') {
-        packageJson.dependencies['i18next'] = '^23.8.1';
-        packageJson.dependencies['react-i18next'] = '^14.0.1';
-        packageJson.dependencies['i18next-resources-to-backend'] = '^1.2.0';
-        packageJson.dependencies['i18next-browser-languagedetector'] = '^7.2.0';
+        packageJson.dependencies['i18next'] = 'latest';
+        packageJson.dependencies['react-i18next'] = 'latest';
+        packageJson.dependencies['i18next-resources-to-backend'] = 'latest';
+        packageJson.dependencies['i18next-browser-languagedetector'] = 'latest';
       }
 
       // SEO
       if (seo) {
-        packageJson.dependencies['next-sitemap'] = '^4.2.3';
+        packageJson.dependencies['next-sitemap'] = 'latest';
       }
 
       // Testing
       if (testing) {
-        packageJson.devDependencies['vitest'] = '^1.2.2';
-        packageJson.devDependencies['@vitejs/plugin-react'] = '^4.2.1';
-        packageJson.devDependencies['jsdom'] = '^24.0.0';
-        packageJson.devDependencies['@testing-library/react'] = '^14.2.0';
-        packageJson.devDependencies['@testing-library/jest-dom'] = '^6.4.2';
+        packageJson.devDependencies['vitest'] = 'latest';
+        packageJson.devDependencies['@vitejs/plugin-react'] = 'latest';
+        packageJson.devDependencies['jsdom'] = 'latest';
+        packageJson.devDependencies['@testing-library/react'] = 'latest';
+        packageJson.devDependencies['@testing-library/jest-dom'] = 'latest';
       }
 
       // Storybook
       if (features?.storybook) {
-        packageJson.devDependencies['storybook'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/react'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/nextjs'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/addon-essentials'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/addon-interactions'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/addon-links'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/addon-onboarding'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/blocks'] = '^8.0.0';
-        packageJson.devDependencies['@storybook/test'] = '^8.0.0';
+        packageJson.devDependencies['storybook'] = 'latest';
+        packageJson.devDependencies['@storybook/react'] = 'latest';
+        packageJson.devDependencies['@storybook/nextjs'] = 'latest';
+        packageJson.devDependencies['@storybook/addon-essentials'] = 'latest';
+        packageJson.devDependencies['@storybook/addon-interactions'] = 'latest';
+        packageJson.devDependencies['@storybook/addon-links'] = 'latest';
+        packageJson.devDependencies['@storybook/addon-onboarding'] = 'latest';
+        packageJson.devDependencies['@storybook/blocks'] = 'latest';
+        packageJson.devDependencies['@storybook/test'] = 'latest';
 
         packageJson.scripts['storybook'] = 'storybook dev -p 6006';
         packageJson.scripts['build-storybook'] = 'storybook build';
@@ -1845,7 +1927,6 @@ npx shadcn@latest add ${themeComponents.join(' ')}
         });
       }
     }
-
 
     archive.finalize();
 

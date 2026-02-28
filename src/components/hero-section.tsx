@@ -79,11 +79,15 @@ export function HeroSection() {
               </Button>
             </Link>
             <a
-              href='https://github.com/Visiontillion/forge'
+              href='https://github.com/visiontillion-labs/forge'
               target='_blank'
               rel='noopener noreferrer'
             >
-              <Button variant='outline' size='lg' className='gap-2 px-6 h-12 text-base'>
+              <Button
+                variant='outline'
+                size='lg'
+                className='gap-2 px-6 h-12 text-base'
+              >
                 Star on GitHub
               </Button>
             </a>
@@ -123,22 +127,32 @@ export function HeroSection() {
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>auth</span>:{' '}
-                <span className='text-muted-foreground'>&quot;better-auth&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;better-auth&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>database</span>:{' '}
-                <span className='text-muted-foreground'>&quot;prisma&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;prisma&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>payment</span>:{' '}
-                <span className='text-muted-foreground'>&quot;stripe&quot;</span>,
+                <span className='text-muted-foreground'>
+                  &quot;stripe&quot;
+                </span>
+                ,
               </p>
               <p className='pl-6'>
                 <span className='text-foreground/50'>plugins</span>: [
               </p>
               <p className='pl-12'>
-                  <span className='text-foreground font-semibold'>shadcnUI</span>(),{' '}
-                  <span className='text-foreground font-semibold'>seo</span>(),
+                <span className='text-foreground font-semibold'>shadcnUI</span>
+                (), <span className='text-foreground font-semibold'>seo</span>
+                (),
               </p>
               <p className='pl-6'>]</p>
               <p>{'}'});</p>
@@ -161,12 +175,12 @@ export function HeroSection() {
         {/* Social proof */}
         <div className='animate-fade-in-up delay-500 mt-12 flex items-center justify-center gap-4'>
           <div className='flex -space-x-2'>
-            {[1, 2, 3, 4, 5].map((i) => (
+            {['A', 'B', 'C', 'D', 'E'].map((label) => (
               <div
-                key={i}
+                key={label}
                 className='inline-flex h-8 w-8 items-center justify-center rounded-full ring-2 ring-background bg-muted text-xs font-bold text-muted-foreground'
               >
-                {String.fromCharCode(64 + i)}
+                {label}
               </div>
             ))}
           </div>
