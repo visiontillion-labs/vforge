@@ -19,7 +19,7 @@
     "create-app"
   ],
   "bin": {
-    "create-vforge-app": "./dist/index.js"
+    "create-vforge-app": "./dist/index.mjs"
   },
   "files": [
     "dist",
@@ -28,7 +28,7 @@
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean",
     "dev": "tsup src/index.ts --format esm --watch",
-    "start": "node dist/index.js",
+    "start": "node dist/index.mjs",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
