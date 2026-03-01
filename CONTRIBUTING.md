@@ -53,7 +53,7 @@ forge/
 │   ├── lib/                 # Utilities and helpers
 │   ├── hooks/               # Custom React hooks
 │   └── templates/           # Boilerplate template files
-├── cli/                     # CLI package (create-vforge-app)
+├── cli/                     # CLI package (create-vforge)
 └── public/                  # Static assets
 ```
 

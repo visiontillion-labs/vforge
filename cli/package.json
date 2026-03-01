@@ -1,7 +1,7 @@
 {
-  "name": "create-vforge-app",
+  "name": "create-vforge",
   "version": "1.0.0",
-  "description": "VForge CLI to generate production-ready Next.js boilerplate projects",
+  "description": "Create VForge apps with interactive presets and custom setup",
   "author": "Visiontillion Labs",
   "license": "MIT",
   "repository": {
@@ -19,7 +19,7 @@
     "create-app"
   ],
   "bin": {
-    "create-vforge-app": "./dist/index.mjs"
+    "create-vforge": "./dist/index.mjs"
   },
   "files": [
     "dist",

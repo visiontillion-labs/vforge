@@ -14,7 +14,7 @@ From Visiontillion Labs.
 - **Theme Customization** - Customize radius, colors, fonts, and shadcn/ui components (like the shadcn themes page)
 - **Preset Templates** - Quick-start presets for SaaS, E-commerce, and Blog/CMS projects
 - **Live Preview** - Real-time file tree preview as you configure
-- **CLI Support** - Generate projects via `npx create-vforge-app` or download as ZIP
+- **CLI Support** - Generate projects via `npm create vforge@latest` or download as ZIP
 - **Copyable Commands** - Copy installation commands directly from the UI
 - **Shareable Configs** - Share your configuration via URL
 
@@ -39,13 +39,13 @@ From Visiontillion Labs.
 ### Using the CLI
 
 ```bash
-npx create-vforge-app my-app
+npm create vforge@latest my-app
 ```
 
 Or with a preset:
 
 ```bash
-npx create-vforge-app my-app --preset saas
+npx create-vforge my-app --preset saas
 ```
 
 ### Using the Web App

@@ -9,7 +9,7 @@ import { getPreset, presetNames } from './presets.js';
 const program = new Command();
 
 program
-  .name('create-vforge-app')
+  .name('create-vforge')
   .description('Generate production-ready Next.js boilerplate projects')
   .version('1.0.0')
   .argument('[project-name]', 'Name of the project')

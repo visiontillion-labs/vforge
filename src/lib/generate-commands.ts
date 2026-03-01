@@ -54,7 +54,7 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.database !== 'none')
     cliFlags.push(`--database ${values.database}`);
 
-  const cliCommand = `npx create-vforge-app ${values.projectName}${cliFlags.length ? ' ' + cliFlags.join(' ') : ''}`;
+  const cliCommand = `npm create vforge@latest ${values.projectName}${cliFlags.length ? ' -- ' + cliFlags.join(' ') : ''}`;
 
   // ── Manual steps ────────────────────────────────────────────────
   const steps: ManualStep[] = [];

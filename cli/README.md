@@ -1,24 +1,24 @@
-# create-vforge-app
+# create-vforge
 
 The CLI companion for [VForge](https://vforge.dev) - generate production-ready Next.js boilerplate projects from your terminal.
 
 ## Usage
 
 ```bash
-npx create-vforge-app my-app
+npm create vforge@latest my-app
 ```
 
 ### With Presets
 
 ```bash
 # SaaS starter with auth, payments, DB & monitoring
-npx create-vforge-app my-saas --preset saas
+npx create-vforge my-saas --preset saas
 
 # E-commerce with payments & i18n
-npx create-vforge-app my-store --preset ecommerce
+npx create-vforge my-store --preset ecommerce
 
 # Blog/CMS with SEO & AI
-npx create-vforge-app my-blog --preset blog
+npx create-vforge my-blog --preset blog
 ```
 
 ### Interactive Mode
@@ -26,7 +26,7 @@ npx create-vforge-app my-blog --preset blog
 Running without flags will start interactive prompts:
 
 ```bash
-npx create-vforge-app
+npm create vforge@latest
 ```
 
 You'll be guided through:

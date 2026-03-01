@@ -1,13 +1,13 @@
 # CLI Setup & Publishing Guide
 
-Complete guide to build, test, and publish `create-vforge-app` so users can run `npx create-vforge-app my-app`.
+Complete guide to build, test, and publish `create-vforge` so users can run `npm create vforge@latest my-app`.
 
 ---
 
 ## How It Works
 
 ```
-User runs: npx create-vforge-app my-app
+User runs: npm create vforge@latest my-app
                     │
                     ▼
         cli/src/index.ts (commander)
@@ -96,7 +96,7 @@ npm install
 npm run build
 ```
 
-This compiles TypeScript to `cli/dist/index.js` using `tsup`.
+This compiles TypeScript to `cli/dist/index.mjs` using `tsup`.
 
 ---
 
@@ -106,7 +106,7 @@ This compiles TypeScript to `cli/dist/index.js` using `tsup`.
 
 ```bash
 cd cli
-node dist/index.js my-test-app
+node dist/index.mjs my-test-app
 ```
 
 ### 4b. Use `npm link` for global testing
@@ -119,7 +119,7 @@ npm link
 Now from **any directory**:
 
 ```bash
-create-vforge-app my-test-app
+create-vforge my-test-app
 ```
 
 ### 4c. Test against your local dev server
@@ -136,41 +136,41 @@ Then in another terminal:
 **macOS / Linux:**
 
 ```bash
-VFORGE_API_URL=http://localhost:3000 create-vforge-app my-test-app
+VFORGE_API_URL=http://localhost:3000 create-vforge my-test-app
 ```
 
 **Windows PowerShell:**
 
 ```powershell
-$env:VFORGE_API_URL="http://localhost:3000"; create-vforge-app my-test-app
+$env:VFORGE_API_URL="http://localhost:3000"; create-vforge my-test-app
 ```
 
 **Windows CMD:**
 
 ```cmd
-set VFORGE_API_URL=http://localhost:3000 && create-vforge-app my-test-app
+set VFORGE_API_URL=http://localhost:3000 && create-vforge my-test-app
 ```
 
 ### 4d. Test all modes
 
 ```bash
 # Interactive mode (prompts for everything)
-create-vforge-app
+create-vforge
 
 # With a preset
-create-vforge-app my-saas --preset saas
+create-vforge my-saas --preset saas
 
 # Skip prompts, use defaults
-create-vforge-app my-app -y
+create-vforge my-app -y
 
 # Specific flags
-create-vforge-app my-app --auth clerk --database prisma
+create-vforge my-app --auth clerk --database prisma
 
 # JavaScript instead of TypeScript
-create-vforge-app my-app --javascript
+create-vforge my-app --javascript
 
 # Pages Router
-create-vforge-app my-app --router pages
+create-vforge my-app --router pages
 ```
 
 ### 4e. Unlink after testing
@@ -186,13 +186,13 @@ npm unlink -g
 
 ### 5a. Check package name availability
 
-Visit: https://www.npmjs.com/package/create-vforge-app
+Visit: https://www.npmjs.com/package/create-vforge
 
 If the name is taken, change it in `cli/package.json`:
 
 ```json
 {
-  "name": "create-vforge-app"
+  "name": "create-vforge"
 }
 ```
 
@@ -215,7 +215,7 @@ The `prepublishOnly` script automatically runs `npm run build` before publishing
 
 ```bash
 # From any machine / directory
-npx create-vforge-app my-app
+npm create vforge@latest my-app
 ```
 
 ---
@@ -259,11 +259,11 @@ npm publish
 - [ ] `API_URL` in `generator.ts` points to deployed domain
 - [ ] `src/templates/` directory exists with all template files on the server
 - [ ] CLI builds without errors (`npm run build` in `cli/`)
-- [ ] Local testing works (`npm link` → `create-vforge-app my-app`)
+- [ ] Local testing works (`npm link` → `create-vforge my-app`)
 - [ ] npm account created and logged in (`npm login`)
-- [ ] Package name `create-vforge-app` is available on npm
+- [ ] Package name `create-vforge` is available on npm
 - [ ] Published to npm (`npm publish`)
-- [ ] `npx create-vforge-app my-app` works from a clean machine
+- [ ] `npm create vforge@latest my-app` works from a clean machine
 
 ---
 
@@ -302,7 +302,7 @@ The target folder already has files. Either delete it or choose a different proj
 ### npm publish fails with 403
 
 - Make sure you're logged in: `npm whoami`
-- The package name might be taken — try a scoped name: `@visiontillion/create-vforge-app`
+- The package name might be taken — try a scoped name: `@visiontillion/create-vforge`
 - If scoped, publish with: `npm publish --access public`
 
 ---
@@ -318,7 +318,7 @@ npm run build            # One-time build
 
 # ── Local Testing ────────────────────────
 npm link                 # Link globally
-create-vforge-app my-app # Test the CLI
+create-vforge my-app # Test the CLI
 npm unlink -g            # Remove global link
 
 # ── Publishing ───────────────────────────
@@ -328,6 +328,6 @@ npm version patch        # Bump version 1.0.0 → 1.0.1
 npm version minor        # Bump version 1.0.0 → 1.1.0
 
 # ── Debugging ────────────────────────────
-VFORGE_API_URL=http://localhost:3000 create-vforge-app test  # Test against local
-node dist/index.js test --yes                                # Quick test with defaults
+VFORGE_API_URL=http://localhost:3000 create-vforge test  # Test against local
+node dist/index.mjs test --yes                          # Quick test with defaults
 ```
