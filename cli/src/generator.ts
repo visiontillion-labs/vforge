@@ -7,7 +7,7 @@ import { type ProjectConfig } from './presets.js';
 const API_URL =
   process.env.VFORGE_API_URL ||
   process.env.FORGE_API_URL ||
-  'https://vforge.dev';
+  'https://vforge.vercel.app';
 
 export async function generateProject(config: ProjectConfig): Promise<void> {
   const targetDir = path.resolve(process.cwd(), config.projectName);
@@ -102,7 +102,7 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
       );
       console.error(
         chalk.yellow(
-          '  Alternatively, use the VForge web app at https://vforge.dev',
+          '  Alternatively, use the VForge web app at https://vforge.vercel.app',
         ),
       );
     } else {
