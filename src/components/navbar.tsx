@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Github, Moon, Sun, Menu, X } from 'lucide-react';
@@ -21,9 +22,13 @@ export function Navbar() {
         {/* Logo */}
         <div className='flex items-center gap-3'>
           <Link href='/' className='flex items-center gap-2.5'>
-            <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-foreground'>
-              <span className='text-sm font-bold text-background'>V</span>
-            </div>
+            <Image
+              src='/brand/logo.svg'
+              alt='VForge logo'
+              width={32}
+              height={32}
+              className='h-8 w-8 rounded-lg'
+            />
             <span className='text-lg font-bold tracking-tight'>VFORGE.</span>
           </Link>
         </div>

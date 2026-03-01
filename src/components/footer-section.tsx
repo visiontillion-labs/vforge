@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Github } from 'lucide-react';
 import Link from 'next/link';
 
@@ -36,9 +37,13 @@ export function FooterSection() {
         <div className='mx-auto max-w-7xl px-6 lg:px-8'>
           <div className='flex flex-col items-center justify-between gap-6 py-8 md:flex-row'>
             <div className='flex items-center gap-2'>
-              <div className='flex h-6 w-6 items-center justify-center rounded-md bg-foreground'>
-                <span className='text-xs font-bold text-background'>V</span>
-              </div>
+              <Image
+                src='/brand/logo.svg'
+                alt='VForge logo'
+                width={24}
+                height={24}
+                className='h-6 w-6 rounded-md'
+              />
               <span className='text-sm font-semibold tracking-tight'>
                 VFORGE.
               </span>
