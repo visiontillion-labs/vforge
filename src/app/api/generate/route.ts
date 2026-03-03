@@ -436,8 +436,7 @@ export async function getStaticProps(context) {
 
     // Biome
     if (linter === 'biome') {
-      addDirectory(path.join(extrasDir, 'biome.json'), ''); // It's a file, but addDirectory handles dirs. Logic needs check.
-      // Actually addDirectory expects a dir. For single files:
+      // addDirectory expects folders; biome.json is a single file.
       const biomePath = path.join(extrasDir, 'biome.json');
       if (fs.existsSync(biomePath)) {
         archive.file(biomePath, { name: 'biome.json' });

@@ -160,6 +160,41 @@ export async function runInteractivePrompts(
     ],
   });
 
+  let i18nRouting: string | undefined;
+  let languages: string | undefined;
+
+  if (i18n !== 'none') {
+    if (i18n === 'next-intl') {
+      i18nRouting = await select({
+        message: 'Routing Strategy:',
+        choices: [
+          { name: 'Prefix (/en/about)', value: 'prefix' },
+          { name: 'No prefix (/about)', value: 'no-prefix' },
+        ],
+        default: 'prefix',
+      });
+    }
+
+    languages = await input({
+      message: 'Languages (comma separated):',
+      default: 'en',
+      validate: (value) => {
+        if (!value.trim()) return 'At least one language is required';
+        const locales = value
+          .split(',')
+          .map((locale) => locale.trim())
+          .filter(Boolean);
+
+        if (locales.length === 0) return 'At least one language is required';
+        if (locales.some((locale) => !/^[a-z]{2}(-[A-Z]{2})?$/.test(locale))) {
+          return 'Use locale codes like: en, ar, en-US';
+        }
+
+        return true;
+      },
+    });
+  }
+
   // Feature toggles
   const featureToggles = await checkbox({
     message: 'Additional features:',
@@ -248,6 +283,8 @@ export async function runInteractivePrompts(
     ai,
     monitoring,
     i18n,
+    ...(i18nRouting ? { i18nRouting } : {}),
+    ...(languages ? { languages } : {}),
     seo: featureToggles.includes('seo'),
     testing: featureToggles.includes('testing'),
     theme: {
