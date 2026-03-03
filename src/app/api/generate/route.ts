@@ -8,8 +8,15 @@ import {
   type BaseColorId,
   type PrimaryColorId,
 } from '@/lib/color-presets';
+import {
+  getGenerationAnalyticsProperties,
+  trackGenerationEvent,
+} from '@/lib/server-analytics';
 
 export async function POST(req: NextRequest) {
+  const startedAt = Date.now();
+  let analyticsProps: Record<string, string | number | boolean> | null = null;
+
   try {
     const body = await req.json();
     const {
@@ -35,6 +42,8 @@ export async function POST(req: NextRequest) {
       i18nRouting,
       theme,
     } = body;
+    analyticsProps = getGenerationAnalyticsProperties(body, req);
+    void trackGenerationEvent(req, 'boilerplate_generation_requested', analyticsProps);
 
     // ── Theme defaults ──────────────────────────────────────────────
     const themeRadius = theme?.radius ?? 0.5;
@@ -1930,6 +1939,13 @@ npx shadcn@latest add ${themeComponents.join(' ')}
 
     archive.finalize();
 
+    if (analyticsProps) {
+      void trackGenerationEvent(req, 'boilerplate_generation_succeeded', {
+        ...analyticsProps,
+        generationDurationMs: Date.now() - startedAt,
+      });
+    }
+
     return new NextResponse(stream as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/zip',
@@ -1938,6 +1954,12 @@ npx shadcn@latest add ${themeComponents.join(' ')}
     });
   } catch (error) {
     console.error('Generator error:', error);
+    void trackGenerationEvent(req, 'boilerplate_generation_failed', {
+      source: req.headers.get('x-vforge-source') === 'cli' ? 'cli' : 'web',
+      errorType: error instanceof Error ? error.name : 'UnknownError',
+      generationDurationMs: Date.now() - startedAt,
+      ...(analyticsProps ?? {}),
+    });
     return NextResponse.json({ error: 'Failed' }, { status: 500 });
   }
 }

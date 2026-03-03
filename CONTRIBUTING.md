@@ -28,8 +28,6 @@ npm install
 4. Create a `.env.local` file (optional, for analytics):
 
 ```
-NEXT_PUBLIC_POSTHOG_KEY=your_key
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
 ```
 

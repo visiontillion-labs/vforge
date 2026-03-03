@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/react';
 import Script from 'next/script';
 import './globals.css';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from 'sonner';
-import { PostHogProvider } from '@/components/providers/posthog-provider';
 import { ThemeProvider } from 'next-themes';
 
 const geistSans = Geist({
@@ -57,12 +57,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <PostHogProvider>
-            <TooltipProvider>
-              {children}
-              <Toaster position='bottom-right' richColors />
-            </TooltipProvider>
-          </PostHogProvider>
+          <TooltipProvider>
+            {children}
+            <Toaster position='bottom-right' richColors />
+          </TooltipProvider>
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

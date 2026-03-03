@@ -34,7 +34,10 @@ export async function generateProject(config: ProjectConfig): Promise<void> {
     // Try to use the API first
     const response = await fetch(`${API_URL}/api/generate`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-vforge-source': 'cli',
+      },
       body: JSON.stringify(config),
     });
 

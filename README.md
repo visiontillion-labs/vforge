@@ -80,8 +80,6 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 Create a `.env.local` file for analytics:
 
 ```
-NEXT_PUBLIC_POSTHOG_KEY=your_posthog_key
-NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
 ```
 
@@ -91,7 +89,7 @@ NEXT_PUBLIC_PLAUSIBLE_DOMAIN=your-domain.com
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS 4 + shadcn/ui
 - **Forms:** React Hook Form + Zod
-- **Analytics:** Plausible + PostHog
+- **Analytics:** Vercel Analytics + Plausible (optional)
 - **Archiving:** Archiver (ZIP generation)
 
 ## Contributing
