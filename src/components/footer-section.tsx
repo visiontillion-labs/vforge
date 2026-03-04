@@ -42,7 +42,7 @@ export function FooterSection() {
                 alt='VForge logo'
                 width={24}
                 height={24}
-                className='h-6 w-6 rounded-md'
+                className='h-6 w-6 rounded-md invert-100 dark:invert-0'
               />
               <span className='text-sm font-semibold tracking-tight'>
                 VFORGE.

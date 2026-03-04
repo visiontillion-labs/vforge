@@ -27,7 +27,7 @@ export function Navbar() {
               alt='VForge logo'
               width={32}
               height={32}
-              className='h-8 w-8 rounded-lg'
+              className='h-8 w-8 rounded-lg invert-100 dark:invert-0'
             />
             <span className='text-lg font-bold tracking-tight'>VFORGE.</span>
           </Link>
