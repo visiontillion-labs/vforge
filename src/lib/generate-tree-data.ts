@@ -25,6 +25,7 @@ interface FormValues {
   api: string;
   state: string;
   payment: string;
+  email: string;
   ai: string;
   monitoring: string;
   i18n: string;
@@ -253,6 +254,11 @@ export function buildTreeData(values: FormValues): TreeData {
     }
   }
 
+  // ── Email ──
+  if (values.email === 'mailgun') {
+    addPath(tree, `${src}lib/email/mailgun.${ext}`);
+  }
+
   // ── AI ──
   if (values.ai === 'vercel-ai-sdk') {
     addPath(tree, `${src}app/api/chat/route.${ext}`);
@@ -328,6 +334,7 @@ export function buildTreeData(values: FormValues): TreeData {
     values.auth !== 'none' ||
     values.database !== 'none' ||
     values.payment !== 'none' ||
+    values.email !== 'none' ||
     values.ai === 'vercel-ai-sdk' ||
     values.monitoring !== 'none';
   if (needsEnv) {

@@ -27,6 +27,7 @@ program
     '--database <orm>',
     'Database ORM (prisma, drizzle, mongoose, firebase)',
   )
+  .option('--email <provider>', 'Email provider (none, mailgun)')
   .option('-y, --yes', 'Skip prompts and use defaults')
   .action(async (projectName: string | undefined, options) => {
     console.log('');
@@ -59,6 +60,7 @@ program
           api: 'none',
           state: 'none',
           payment: 'none',
+          email: options.email || 'none',
           ai: 'none',
           monitoring: 'none',
           i18n: 'none',

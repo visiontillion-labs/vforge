@@ -18,6 +18,7 @@ export interface ProjectConfig {
   api: string;
   state: string;
   payment: string;
+  email: string;
   ai: string;
   monitoring: string;
   i18n: string;
@@ -51,6 +52,41 @@ const defaultTheme = {
 
 export const presets: Preset[] = [
   {
+    id: 'shipfast',
+    name: 'ShipFast',
+    description: 'NextAuth, MongoDB, Stripe, Mailgun & SEO',
+    values: {
+      projectName: 'my-startup',
+      router: 'app',
+      language: 'ts',
+      linter: 'eslint',
+      srcDir: true,
+      importAlias: '@/*',
+      features: {
+        tailwind: true,
+        shadcn: true,
+        reactCompiler: false,
+        docker: false,
+        git: true,
+        storybook: false,
+      },
+      auth: 'next-auth',
+      database: 'mongoose',
+      api: 'none',
+      state: 'none',
+      payment: 'stripe',
+      email: 'mailgun',
+      ai: 'none',
+      monitoring: 'none',
+      i18n: 'none',
+      i18nRouting: 'prefix',
+      languages: 'en',
+      seo: true,
+      testing: false,
+      theme: defaultTheme,
+    },
+  },
+  {
     id: 'saas',
     name: 'SaaS Starter',
     description: 'Auth, payments, DB & monitoring',
@@ -74,6 +110,7 @@ export const presets: Preset[] = [
       api: 'trpc',
       state: 'zustand',
       payment: 'stripe',
+      email: 'none',
       ai: 'none',
       monitoring: 'sentry',
       i18n: 'none',
@@ -106,6 +143,7 @@ export const presets: Preset[] = [
       api: 'trpc',
       state: 'zustand',
       payment: 'stripe',
+      email: 'none',
       ai: 'none',
       monitoring: 'posthog',
       i18n: 'next-intl',
@@ -140,6 +178,7 @@ export const presets: Preset[] = [
       api: 'none',
       state: 'none',
       payment: 'none',
+      email: 'none',
       ai: 'vercel-ai-sdk',
       monitoring: 'none',
       i18n: 'next-intl',

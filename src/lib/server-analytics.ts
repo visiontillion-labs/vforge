@@ -34,6 +34,7 @@ export function getGenerationAnalyticsProperties(
     api: String(body.api || 'none'),
     state: String(body.state || 'none'),
     payment: String(body.payment || 'none'),
+    email: String(body.email || 'none'),
     ai: String(body.ai || 'none'),
     monitoring: String(body.monitoring || 'none'),
     i18n: String(body.i18n || 'none'),

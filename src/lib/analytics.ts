@@ -12,6 +12,7 @@ type FeatureProperties = {
   api?: string;
   state?: string;
   payment?: string;
+  email?: string;
   ai?: string;
   monitoring?: string;
   i18n?: string;

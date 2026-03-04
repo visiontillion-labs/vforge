@@ -117,6 +117,7 @@ const formSchema = z.object({
     'dodo',
     'polar',
   ]),
+  email: z.enum(['none', 'mailgun']),
   ai: z.enum(['none', 'vercel-ai-sdk']),
   monitoring: z.enum([
     'none',
@@ -187,6 +188,7 @@ const defaultValues: FormValues = {
   api: 'none',
   state: 'none',
   payment: 'none',
+  email: 'none',
   ai: 'none',
   monitoring: 'none',
   i18n: 'none',
@@ -208,15 +210,55 @@ interface Preset {
   name: string;
   description: string;
   icon: React.ReactNode;
+  featured?: boolean;
+  stack?: string[];
   values: Partial<FormValues>;
 }
 
 const presets: Preset[] = [
   {
+    id: 'shipfast',
+    name: 'ShipFast',
+    description:
+      'Exact stack: Mongo + Mailgun + Stripe + Next.js + Tailwind + NextAuth',
+    icon: <Rocket className='size-4' />,
+    featured: true,
+    stack: ['NextAuth', 'MongoDB', 'Stripe', 'Mailgun', 'Tailwind', 'SEO'],
+    values: {
+      projectName: 'my-startup',
+      router: 'app',
+      language: 'ts',
+      linter: 'eslint',
+      srcDir: true,
+      features: {
+        tailwind: true,
+        shadcn: true,
+        reactCompiler: false,
+        docker: false,
+        git: true,
+        storybook: false,
+      },
+      auth: 'next-auth',
+      database: 'mongoose',
+      api: 'none',
+      state: 'none',
+      payment: 'stripe',
+      email: 'mailgun',
+      ai: 'none',
+      monitoring: 'none',
+      i18n: 'none',
+      i18nRouting: 'prefix',
+      languages: 'en',
+      seo: true,
+      testing: false,
+    },
+  },
+  {
     id: 'saas',
     name: 'SaaS Starter',
     description: 'Auth, payments, DB & monitoring',
     icon: <Rocket className='size-4' />,
+    stack: ['Auth', 'Payments', 'Database', 'Monitoring'],
     values: {
       projectName: 'my-saas-app',
       router: 'app',
@@ -249,6 +291,7 @@ const presets: Preset[] = [
     name: 'E-commerce',
     description: 'Store with payments & i18n',
     icon: <ShoppingCart className='size-4' />,
+    stack: ['Store', 'Payments', 'i18n'],
     values: {
       projectName: 'my-store',
       router: 'app',
@@ -282,6 +325,7 @@ const presets: Preset[] = [
     name: 'Blog / CMS',
     description: 'Content site with SEO & AI',
     icon: <Newspaper className='size-4' />,
+    stack: ['SEO', 'CMS', 'AI'],
     values: {
       projectName: 'my-blog',
       router: 'app',
@@ -418,6 +462,7 @@ export function GeneratorForm({ sharedConfig }: GeneratorFormProps) {
         api: values.api,
         state: values.state,
         payment: values.payment,
+        email: values.email,
         ai: values.ai,
         monitoring: values.monitoring,
         i18n: values.i18n,
@@ -552,33 +597,59 @@ export function GeneratorForm({ sharedConfig }: GeneratorFormProps) {
           )}
 
           {/* Preset Templates */}
-          <div className='flex flex-wrap gap-2 pt-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-3 pt-4'>
             {presets.map((preset) => (
               <button
                 key={preset.id}
                 type='button'
                 onClick={() => applyPreset(preset)}
-                className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-all hover:bg-accent/60 ${
+                className={`rounded-xl border p-3 text-left transition-all hover:bg-accent/60 ${
                   activePreset === preset.id
                     ? 'border-primary bg-accent shadow-sm ring-1 ring-primary/20'
                     : 'border-border bg-background hover:border-primary/30'
                 }`}
               >
-                <span
-                  className={
-                    activePreset === preset.id
-                      ? 'text-primary'
-                      : 'text-muted-foreground'
-                  }
-                >
-                  {preset.icon}
-                </span>
-                <div>
-                  <div className='font-medium leading-none'>{preset.name}</div>
-                  <div className='text-xs text-muted-foreground mt-0.5'>
-                    {preset.description}
+                <div className='flex items-start justify-between gap-3'>
+                  <div className='flex items-start gap-2.5'>
+                    <span
+                      className={
+                        activePreset === preset.id
+                          ? 'text-primary'
+                          : 'text-muted-foreground'
+                      }
+                    >
+                      {preset.icon}
+                    </span>
+                    <div>
+                      <div className='font-medium leading-none'>{preset.name}</div>
+                      <div className='text-xs text-muted-foreground mt-1 leading-relaxed'>
+                        {preset.description}
+                      </div>
+                    </div>
                   </div>
+                  {preset.featured && (
+                    <span className='rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary'>
+                      Featured
+                    </span>
+                  )}
                 </div>
+                {preset.stack && preset.stack.length > 0 && (
+                  <div className='mt-3 flex flex-wrap gap-1.5'>
+                    {preset.stack.map((item) => (
+                      <span
+                        key={`${preset.id}-${item}`}
+                        className='rounded-md border border-border/70 bg-muted/40 px-2 py-0.5 text-[10px] text-muted-foreground'
+                      >
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {preset.id === 'shipfast' && (
+                  <div className='mt-2 text-[11px] text-muted-foreground'>
+                    Use this when you want the exact ShipFast-style launch stack.
+                  </div>
+                )}
               </button>
             ))}
             {activePreset && (
@@ -588,13 +659,19 @@ export function GeneratorForm({ sharedConfig }: GeneratorFormProps) {
                   form.reset(defaultValues);
                   setActivePreset(null);
                 }}
-                className='flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-all'
+                className='flex items-center justify-center gap-1.5 rounded-xl border border-border px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-all md:col-span-2'
               >
                 <RotateCcw className='size-3.5' />
-                Reset
+                Reset to base configuration
               </button>
             )}
           </div>
+          {activePreset === 'shipfast' && (
+            <div className='mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground'>
+              ShipFast exact preset loaded: Next.js + NextAuth + MongoDB +
+              Stripe + Mailgun + SEO + Tailwind.
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -875,6 +952,32 @@ export function GeneratorForm({ sharedConfig }: GeneratorFormProps) {
                           <SelectItem value='paddle'>Paddle</SelectItem>
                           <SelectItem value='dodo'>Dodo Payments</SelectItem>
                           <SelectItem value='polar'>Polar</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* AI */}
+                <FormField
+                  control={form.control}
+                  name='email'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email Provider</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder='Select Email Provider' />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value='none'>None</SelectItem>
+                          <SelectItem value='mailgun'>Mailgun</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />

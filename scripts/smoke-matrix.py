@@ -48,6 +48,7 @@ def run_matrix(base_url: str) -> List[Tuple[str, str]]:
         "api": "none",
         "state": "none",
         "payment": "none",
+        "email": "none",
         "ai": "none",
         "monitoring": "none",
         "i18n": "none",
@@ -75,6 +76,8 @@ def run_matrix(base_url: str) -> List[Tuple[str, str]]:
         cases.append((f"state:{value}", {"state": value}))
     for value in ["stripe", "lemonsqueezy", "paddle", "dodo", "polar"]:
         cases.append((f"payment:{value}", {"payment": value}))
+    for value in ["mailgun"]:
+        cases.append((f"email:{value}", {"email": value}))
     for value in ["sentry", "posthog", "logrocket", "google-analytics", "vercel-analytics"]:
         cases.append((f"monitoring:{value}", {"monitoring": value}))
     for value in ["next-intl", "react-i18next"]:
@@ -161,6 +164,13 @@ def run_matrix(base_url: str) -> List[Tuple[str, str]]:
                 for dependency in ["@vercel/analytics", "@vercel/speed-insights"]:
                     if dependency not in dependencies:
                         failures.append((name, f"missing dependency {dependency}"))
+
+            if payload["email"] == "mailgun":
+                for dependency in ["mailgun.js", "form-data"]:
+                    if dependency not in dependencies:
+                        failures.append((name, f"missing dependency {dependency}"))
+                if "src/lib/email/mailgun.ts" not in file_names:
+                    failures.append((name, "missing Mailgun helper file"))
 
             if payload["i18n"] == "next-intl":
                 if "next-intl" not in dependencies:

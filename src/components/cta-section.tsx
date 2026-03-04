@@ -28,6 +28,10 @@ export function CTASection() {
               Select your preferred tools and frameworks, then download a
               production-ready project or get the CLI command.
             </p>
+            <p className='mx-auto mb-8 max-w-2xl text-sm text-muted-foreground'>
+              New: ShipFast preset for a proven launch stack with NextAuth,
+              MongoDB, Stripe, and Mailgun.
+            </p>
             <Link href='/generator'>
               <Button size='lg' className='gap-2 px-8 h-12 text-base shadow-lg'>
                 Open Generator

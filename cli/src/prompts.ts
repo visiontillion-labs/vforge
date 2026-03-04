@@ -128,6 +128,15 @@ export async function runInteractivePrompts(
     ],
   });
 
+  // Email
+  const email = await select({
+    message: 'Email Provider:',
+    choices: [
+      { name: 'None', value: 'none' },
+      { name: 'Mailgun', value: 'mailgun' },
+    ],
+  });
+
   // AI
   const ai = await select({
     message: 'AI Integration:',
@@ -280,6 +289,7 @@ export async function runInteractivePrompts(
     api,
     state,
     payment,
+    email,
     ai,
     monitoring,
     i18n,

@@ -37,7 +37,7 @@ export function HeroSection() {
               <span className='absolute inline-flex h-full w-full animate-ping rounded-full bg-foreground opacity-75' />
               <span className='relative inline-flex h-2 w-2 rounded-full bg-foreground' />
             </span>
-            Own Your Stack
+            Own Your Stack · New ShipFast preset
           </div>
 
           {/* Title */}
@@ -52,6 +52,10 @@ export function HeroSection() {
           <p className='animate-fade-in-up delay-200 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-10'>
             Configure the ultimate Next.js starter kit in seconds. Select your
             stack, customize your features, and deploy instantly.
+          </p>
+          <p className='animate-fade-in-up delay-250 mb-8 text-sm font-medium text-muted-foreground'>
+            Try the <span className='text-foreground'>ShipFast preset</span> for
+            a startup-ready setup with NextAuth, MongoDB, Stripe, and Mailgun.
           </p>
 
           {/* CLI Command Block */}

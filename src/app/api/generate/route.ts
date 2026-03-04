@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       api,
       state,
       payment,
+      email,
       ai,
       monitoring,
       i18nRouting,
@@ -498,6 +499,12 @@ export async function getStaticProps(context) {
       addDirectory(payPath);
     }
 
+    // Email
+    if (email && email !== 'none') {
+      const emailPath = path.join(extrasDir, 'email', email);
+      addDirectory(emailPath);
+    }
+
     // AI
     if (ai === 'vercel-ai-sdk') {
       addDirectory(path.join(extrasDir, 'ai'));
@@ -824,6 +831,12 @@ ${reduxStoreSetup}
         packageJson.dependencies['@polar-sh/sdk'] = 'latest';
       }
 
+      // Email
+      if (email === 'mailgun') {
+        packageJson.dependencies['mailgun.js'] = 'latest';
+        packageJson.dependencies['form-data'] = 'latest';
+      }
+
       // AI
       if (ai === 'vercel-ai-sdk') {
         packageJson.dependencies['ai'] = 'latest';
@@ -945,6 +958,9 @@ ${reduxStoreSetup}
       dodo: 'Dodo Payments',
       polar: 'Polar',
     };
+    const emailNames: Record<string, string> = {
+      mailgun: 'Mailgun',
+    };
     const monitoringNames: Record<string, string> = {
       sentry: 'Sentry',
       posthog: 'PostHog',
@@ -1020,6 +1036,16 @@ ${reduxStoreSetup}
       envContent += '\n';
     }
 
+    // Email
+    if (email !== 'none') {
+      envContent += `# Email (${emailNames[email] || email})\n`;
+      if (email === 'mailgun') {
+        envContent += `MAILGUN_API_KEY="key-..."\nMAILGUN_DOMAIN="mg.example.com"\nMAILGUN_FROM_EMAIL="noreply@example.com"\n`;
+        envContent += `MAILGUN_FROM_NAME="VForge"\nMAILGUN_REGION="us"\n`;
+      }
+      envContent += '\n';
+    }
+
     // AI
     if (ai === 'vercel-ai-sdk') {
       envContent += `# AI (Vercel AI SDK)\nOPENAI_API_KEY="sk-..."\n\n`;
@@ -1029,7 +1055,7 @@ ${reduxStoreSetup}
     if (monitoring !== 'none') {
       envContent += `# Monitoring (${monitoringNames[monitoring] || monitoring})\n`;
       if (monitoring === 'sentry') {
-        envContent += `SENTRY_AUTH_TOKEN=""\nSENTRY_DSN=""\nSENTRY_ORG=""\nSENTRY_PROJECT=""\n`;
+        envContent += `SENTRY_AUTH_TOKEN=""\nNEXT_PUBLIC_SENTRY_DSN=""\nSENTRY_ORG=""\nSENTRY_PROJECT=""\n`;
       } else if (monitoring === 'posthog') {
         envContent += `NEXT_PUBLIC_POSTHOG_KEY="phc_..."\nNEXT_PUBLIC_POSTHOG_HOST="https://app.posthog.com"\n`;
       } else if (monitoring === 'logrocket') {
@@ -1039,9 +1065,6 @@ ${reduxStoreSetup}
       }
       envContent += '\n';
     }
-
-    // Email / Resend (if relevant, but not explicitly selected in form yet, maybe implicitly?)
-    // Skipping for now as it's not in the main feature list.
 
     if (envContent.trim() !== '') {
       archive.append(Buffer.from(envContent), { name: '.env.example' });
@@ -1072,6 +1095,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [VForge](http
       readmeContent += `| State Management | ${stateNames[state] || state} |\n`;
     if (payment !== 'none')
       readmeContent += `| Payments | ${paymentNames[payment] || payment} |\n`;
+    if (email !== 'none')
+      readmeContent += `| Email | ${emailNames[email] || email} |\n`;
     if (ai !== 'none') readmeContent += `| AI | Vercel AI SDK |\n`;
     if (monitoring !== 'none')
       readmeContent += `| Analytics & Monitoring | ${monitoringNames[monitoring] || monitoring} |\n`;
@@ -1534,6 +1559,27 @@ function MyComponent() {
 `;
     }
 
+    // ── Email ────────────────────────────────────────────────────────
+    if (email === 'mailgun') {
+      readmeContent += `
+## ✉️ Email — Mailgun
+
+1. Create a Mailgun account at [mailgun.com](https://www.mailgun.com/).
+2. Verify your sending domain and configure DNS records.
+3. Add the following to \`.env.local\`:
+   \`\`\`env
+   MAILGUN_API_KEY=key-...
+   MAILGUN_DOMAIN=mg.example.com
+   MAILGUN_FROM_EMAIL=noreply@example.com
+   MAILGUN_FROM_NAME=Your App
+   MAILGUN_REGION=us
+   \`\`\`
+4. Use the helper at \`${srcDir ? 'src/' : ''}lib/email/mailgun.ts\` to send transactional emails.
+
+📖 [Mailgun Documentation](https://documentation.mailgun.com/)
+`;
+    }
+
     // ── AI ────────────────────────────────────────────────────────────
     if (ai === 'vercel-ai-sdk') {
       readmeContent += `
@@ -1566,7 +1612,7 @@ function MyComponent() {
 1. Create a Sentry project at [sentry.io](https://sentry.io).
 2. Add the following to \`.env.local\`:
    \`\`\`env
-   SENTRY_DSN=https://<key>@sentry.io/<project>
+   NEXT_PUBLIC_SENTRY_DSN=https://<key>@sentry.io/<project>
    \`\`\`
 3. Sentry is initialised in \`sentry.client.config.ts\` and \`sentry.server.config.ts\`.
 

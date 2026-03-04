@@ -18,6 +18,7 @@ interface FormValues {
   api: string;
   state: string;
   payment: string;
+  email: string;
   ai: string;
   monitoring: string;
   i18n: string;
@@ -53,6 +54,7 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   if (values.auth !== 'none') cliFlags.push(`--auth ${values.auth}`);
   if (values.database !== 'none')
     cliFlags.push(`--database ${values.database}`);
+  if (values.email !== 'none') cliFlags.push(`--email ${values.email}`);
 
   const cliCommand = `npm create vforge@latest ${values.projectName}${cliFlags.length ? ' -- ' + cliFlags.join(' ') : ''}`;
 
@@ -137,6 +139,13 @@ export function generateCommands(values: FormValues): GeneratedCommands {
   };
   if (values.payment !== 'none' && paymentDeps[values.payment]) {
     deps.push(...paymentDeps[values.payment]);
+  }
+
+  const emailDeps: Record<string, string[]> = {
+    mailgun: ['mailgun.js', 'form-data'],
+  };
+  if (values.email !== 'none' && emailDeps[values.email]) {
+    deps.push(...emailDeps[values.email]);
   }
 
   if (values.ai === 'vercel-ai-sdk') {
@@ -893,7 +902,41 @@ PADDLEEOF`,
     });
   }
 
-  // ━━ 13. AI setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 13. Email setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  if (values.email === 'mailgun') {
+    const srcPrefix = values.srcDir ? 'src/' : '';
+
+    steps.push({
+      label: 'Create Mailgun helper',
+      command:
+        platformAwareMkdir(`${srcPrefix}lib/email`) +
+        ` && cat > ${srcPrefix}lib/email/mailgun.${values.language === 'ts' ? 'ts' : 'js'} << 'MAILGUNEOF'
+import formData from "form-data"
+import Mailgun from "mailgun.js"
+
+const mailgun = new Mailgun(formData)
+const region = process.env.MAILGUN_REGION || "us"
+
+export const mailgunClient = mailgun.client({
+  username: "api",
+  key: process.env.MAILGUN_API_KEY!,
+  url: region === "eu" ? "https://api.eu.mailgun.net" : "https://api.mailgun.net",
+})
+
+export async function sendTransactionalEmail(to, subject, text, html) {
+  return mailgunClient.messages.create(process.env.MAILGUN_DOMAIN!, {
+    from: \`\${process.env.MAILGUN_FROM_NAME || "VForge App"} <\${process.env.MAILGUN_FROM_EMAIL || "noreply@example.com"}>\`,
+    to: [to],
+    subject,
+    text,
+    html,
+  })
+}
+MAILGUNEOF`,
+    });
+  }
+
+  // ━━ 14. AI setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.ai === 'vercel-ai-sdk') {
     const srcPrefix = values.srcDir ? 'src/' : '';
 
@@ -951,7 +994,7 @@ AIPEOF`,
     });
   }
 
-  // ━━ 14. Monitoring setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 15. Monitoring setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.monitoring === 'sentry') {
     steps.push({
       label: 'Initialize Sentry (interactive wizard)',
@@ -997,7 +1040,7 @@ PHEOF`,
     });
   }
 
-  // ━━ 15. i18n setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 16. i18n setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.i18n === 'next-intl') {
     const srcPrefix = values.srcDir ? 'src/' : '';
     const langs = (values.languages || 'en')
@@ -1098,7 +1141,7 @@ RI18EOF`,
     });
   }
 
-  // ━━ 16. SEO setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 17. SEO setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.seo) {
     steps.push({
       label: 'Create next-sitemap config',
@@ -1118,7 +1161,7 @@ SEOEOF`,
     });
   }
 
-  // ━━ 17. Testing setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 18. Testing setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.testing) {
     steps.push({
       label: 'Create Vitest config',
@@ -1157,7 +1200,7 @@ VSEOF`,
     });
   }
 
-  // ━━ 18. Storybook ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 19. Storybook ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.features.storybook) {
     steps.push({
       label: 'Initialize Storybook',
@@ -1165,7 +1208,7 @@ VSEOF`,
     });
   }
 
-  // ━━ 19. Docker setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 20. Docker setup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.features.docker) {
     steps.push({
       label: 'Create Dockerfile',
@@ -1282,7 +1325,7 @@ DCEOF`,
     });
   }
 
-  // ━━ 20. React Compiler ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 21. React Compiler ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   if (values.features.reactCompiler) {
     steps.push({
       label: 'Enable React Compiler in next.config',
@@ -1290,7 +1333,7 @@ DCEOF`,
     });
   }
 
-  // ━━ 21. Environment variables template ━━━━━━━━━━━━━━━━━━━━━━━━━
+  // ━━ 22. Environment variables template ━━━━━━━━━━━━━━━━━━━━━━━━━
   const envVars: string[] = [];
   envVars.push('# App');
   envVars.push('NEXT_PUBLIC_APP_URL=http://localhost:3000');
@@ -1363,11 +1406,21 @@ DCEOF`,
     envVars.push('');
   } else if (values.payment === 'dodo') {
     envVars.push('# Dodo Payments');
-    envVars.push('DODO_API_KEY=');
+    envVars.push('DODO_PAYMENTS_API_KEY=');
     envVars.push('');
   } else if (values.payment === 'polar') {
     envVars.push('# Polar');
     envVars.push('POLAR_ACCESS_TOKEN=');
+    envVars.push('');
+  }
+
+  if (values.email === 'mailgun') {
+    envVars.push('# Mailgun');
+    envVars.push('MAILGUN_API_KEY=');
+    envVars.push('MAILGUN_DOMAIN=mg.example.com');
+    envVars.push('MAILGUN_FROM_EMAIL=noreply@example.com');
+    envVars.push('MAILGUN_FROM_NAME=VForge');
+    envVars.push('MAILGUN_REGION=us');
     envVars.push('');
   }
 
@@ -1379,17 +1432,17 @@ DCEOF`,
 
   if (values.monitoring === 'sentry') {
     envVars.push('# Sentry');
-    envVars.push('SENTRY_DSN=');
+    envVars.push('NEXT_PUBLIC_SENTRY_DSN=');
     envVars.push('SENTRY_AUTH_TOKEN=');
     envVars.push('');
   } else if (values.monitoring === 'posthog') {
     envVars.push('# PostHog');
     envVars.push('NEXT_PUBLIC_POSTHOG_KEY=');
-    envVars.push('NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com');
+    envVars.push('NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com');
     envVars.push('');
   } else if (values.monitoring === 'google-analytics') {
     envVars.push('# Google Analytics');
-    envVars.push('NEXT_PUBLIC_GA_ID=');
+    envVars.push('NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=');
     envVars.push('');
   }
 
